@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("editor")
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  title       String
+  developer   String
+  releaseYear Int
+  genre       String
+  rating      Int      @default(0)
+  coverImage  String
+  heroImage   String
+  rawgId      String?  @unique
+  platforms   String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  review      Review?
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  gameId      String   @unique
+  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  title       String
+  subtitle    String
+  content     String   @db.Text
+  screenshots String[]
+  publishedAt DateTime?
+  status      ReviewStatus @default(DRAFT)
+  readTime    String   @default("10 MIN READ")
+  authorName  String
+  authorRole  String
+  authorAvatar String
+  highs       String[]
+  lows        String[]
+  verdict     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ReviewStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}

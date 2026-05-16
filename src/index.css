@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-serif: "Playfair Display", serif;
+
+  --color-brand-red: #E50914;
+  --color-brand-red-hover: #C11119;
+  --color-gamex-charcoal: #564D4D;
+  --color-gamex-neutral: #808080;
+  --color-gamex-black: #141414;
+  --color-gamex-surface: #1F1F1F;
+  --color-gamex-border: #333333;
+  --color-gamex-text-secondary: #999999;
+}
+
+@layer base {
+  body {
+    @apply bg-gamex-black text-white antialiased font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-[0.04em] uppercase;
+  }
+}
+
+/* Custom Scrollbar - Netflix Style */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E50914;
+}
+
+/* Cinematic Fade Edge - Netflix Style */
+.cinematic-vignette {
+  background: linear-gradient(to bottom, transparent 0%, rgba(20, 20, 20, 0.4) 60%, rgba(20, 20, 20, 1) 100%);
+}
+
+.horizontal-scroll-mask {
+  mask-image: linear-gradient(90deg, #141414 0%, transparent 8%, transparent 92%, #141414 100%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
