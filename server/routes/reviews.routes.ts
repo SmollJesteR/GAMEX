@@ -33,12 +33,12 @@ router.get('/:id', async (req: Request, res: Response) => {
   return res.json(review);
 });
 
-// POST /api/reviews  — admin only, creates a DRAFT
+// POST /api/reviews  — admin only, creates a review
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   const {
     gameId, title, subtitle, content,
     screenshots, readTime, authorName, authorRole, authorAvatar,
-    highs, lows, verdict,
+    highs, lows, verdict, status,
   } = req.body;
 
   if (!gameId || !title) {
@@ -50,10 +50,13 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     return res.status(409).json({ error: 'A review for this game already exists. Use PATCH to update it.' });
   }
 
+  const resolvedStatus = status === 'PUBLISHED' ? 'PUBLISHED' : status === 'SCHEDULED' ? 'SCHEDULED' : 'DRAFT';
+
   const review = await prisma.review.create({
     data: {
       gameId, title, subtitle: subtitle || '', content: content || '',
-      screenshots: screenshots || [], status: 'DRAFT',
+      screenshots: screenshots || [], status: resolvedStatus,
+      publishedAt: resolvedStatus === 'PUBLISHED' ? new Date() : null,
       readTime: readTime || '10 MIN READ',
       authorName: authorName || 'GAMEX Editorial',
       authorRole: authorRole || 'Staff Critic',

@@ -11,24 +11,27 @@ import AdminDashboard from './components/AdminDashboard';
 import Footer from './components/Footer';
 import { games as gamesApi, reviews as reviewsApi } from './lib/api';
 import type { Game, Review } from './lib/api';
-import { games as mockGames, reviews as mockReviews } from './mockData';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
-
-  useEffect(() => {
-    gamesApi.getAll().then(setGames).catch(console.error);
-    reviewsApi.getAll().then(setReviews).catch(console.error);
-  }, []);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'home' | 'about' | 'genres' | 'admin-login' | 'admin-dashboard' | 'genre-detail'>('home');
-  
+
+  const fetchData = () => {
+    gamesApi.getAll().then(setGames).catch(console.error);
+    reviewsApi.getAll().then(setReviews).catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleGameSelect = (gameId: string) => {
     setSelectedGameId(gameId);
-    setCurrentView('home'); // Switch back to home view if we were on about but somehow triggered a select
+    setCurrentView('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -38,6 +41,10 @@ export default function App() {
     if (view !== 'genre-detail') {
       setSelectedGenre(null);
     }
+    // Refetch data when navigating to home so new reviews appear
+    if (view === 'home') {
+      fetchData();
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -46,20 +53,17 @@ export default function App() {
     handleNavigate('genre-detail');
   };
 
-  const displayGames = games.length > 0 ? games : mockGames;
-  const displayReviews = reviews.length > 0 ? reviews : mockReviews;
-
-  const featuredGame = displayGames[0];
-  const gridItems = displayReviews.map(review => ({
+  const featuredGame = games[0];
+  const gridItems = reviews.map(review => ({
     review,
-    game: displayGames.find(g => g.id === review.gameId)!
-  }));
+    game: games.find(g => g.id === review.gameId)!
+  })).filter(item => item.game);
 
   const selectedReview = selectedGameId 
-    ? displayReviews.find(r => r.gameId === selectedGameId) 
+    ? reviews.find(r => r.gameId === selectedGameId) 
     : null;
   const selectedGame = selectedGameId 
-    ? displayGames.find(g => g.id === selectedGameId) 
+    ? games.find(g => g.id === selectedGameId) 
     : null;
 
   return (
@@ -101,36 +105,47 @@ export default function App() {
           ) : currentView === 'admin-dashboard' ? (
             <AdminDashboard key="dashboard" />
           ) : (
-            <motion.section 
-              key="landing"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="pb-24"
-            >
-              <Hero game={featuredGame} onReadLongForm={handleGameSelect} />
-              
-                <div className="relative z-10 space-y-12 -mt-16 md:-mt-24">
-                {[
-                  "Action",
-                  "Action-Adventure",
-                  "Role-Playing (RPG)",
-                  "Simulation",
-                  "Strategy",
-                  "Shooter",
-                  "Sports",
-                  "Puzzle",
-                  "Mobile"
-                ].map((genreName) => (
-                  <ReviewRow 
-                    key={genreName}
-                    title={genreName} 
-                    items={gridItems.filter(item => item.game.genre === genreName)} 
-                    onItemClick={handleGameSelect}
-                  />
-                ))}
-              </div>
-            </motion.section>
+              <motion.section 
+                key="landing"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="pb-24"
+              >
+                {featuredGame ? (
+                  <>
+                    <Hero game={featuredGame} onReadLongForm={handleGameSelect} />
+                    <div className="relative z-10 space-y-12 -mt-16 md:-mt-24">
+                      {[
+                        "Action",
+                        "Action-Adventure",
+                        "Role-Playing (RPG)",
+                        "Simulation",
+                        "Strategy",
+                        "Shooter",
+                        "Sports",
+                        "Puzzle",
+                        "Mobile"
+                      ].map((genreName) => (
+                        <ReviewRow 
+                          key={genreName}
+                          title={genreName} 
+                          items={gridItems.filter(item => item.game.genre?.split(', ').some(g => g === genreName) || item.game.genre === genreName)} 
+                          onItemClick={handleGameSelect}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="h-[80vh] flex flex-col items-center justify-center text-center p-12">
+                    <h1 className="text-6xl font-display text-white uppercase tracking-widest mb-6">Welcome to GAMEX</h1>
+                    <p className="text-gamex-text-secondary max-w-lg mb-12 text-lg">Your database is empty. Head over to the Admin Dashboard to write your first review!</p>
+                    <button onClick={() => handleNavigate('admin-login')} className="bg-brand-red text-white px-8 py-4 rounded-sm font-bold uppercase tracking-widest hover:bg-brand-red-hover transition-colors">
+                      Go to Admin
+                    </button>
+                  </div>
+                )}
+              </motion.section>
           )}
         </AnimatePresence>
       </main>
