@@ -103,7 +103,7 @@ export default function App() {
           ) : currentView === 'admin-login' ? (
             <AdminLogin key="login" onLoginSuccess={() => setCurrentView('admin-dashboard')} />
           ) : currentView === 'admin-dashboard' ? (
-            <AdminDashboard key="dashboard" />
+            <AdminDashboard key="dashboard" onGoHome={() => handleNavigate('home')} />
           ) : (
               <motion.section 
                 key="landing"
@@ -114,7 +114,7 @@ export default function App() {
               >
                 {featuredGame ? (
                   <>
-                    <Hero game={featuredGame} onReadLongForm={handleGameSelect} />
+                    <Hero game={featuredGame} review={reviews.find(r => r.gameId === featuredGame.id)} onReadLongForm={handleGameSelect} />
                     <div className="relative z-10 space-y-12 -mt-16 md:-mt-24">
                       {[
                         "Action",

@@ -121,6 +121,7 @@ export interface Game {
   rating: number;
   coverImage: string;
   heroImage: string;
+  gridImage?: string | null;
   rawgId?: string;
   platforms: string[];
   review?: Review;
@@ -132,6 +133,7 @@ export interface Review {
   game?: Game;
   title: string;
   subtitle: string;
+  heroSummary?: string;
   content: string;
   screenshots: string[];
   publishedAt: string | null;
@@ -143,6 +145,17 @@ export interface Review {
   highs: string[];
   lows: string[];
   verdict: string;
+  // Performance breakdown scores
+  gameplayDepth?: number | null;
+  gameplayBalance?: number | null;
+  gameplayInnovation?: number | null;
+  worldScale?: number | null;
+  worldAtmosphere?: number | null;
+  worldDetail?: number | null;
+  perfLowestFps?: number | null;
+  perfAverageFps?: number | null;
+  perfHighestFps?: number | null;
+  updatedAt?: string;
 }
 
 export interface RawgGameResult {

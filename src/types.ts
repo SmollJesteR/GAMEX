@@ -7,6 +7,7 @@ export interface Game {
   rating: number; // 0-100
   coverImage: string;
   heroImage: string;
+  gridImage?: string;
 }
 
 export interface Review {

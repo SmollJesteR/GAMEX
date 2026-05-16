@@ -27,7 +27,7 @@ export default function About() {
   ];
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -36,8 +36,8 @@ export default function About() {
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center px-6 md:px-24 overflow-hidden pt-[68px]">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop" 
+          <img
+            src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
             className="w-full h-full object-cover opacity-40 brightness-50"
             alt="Hero Background"
             referrerPolicy="no-referrer"
@@ -47,7 +47,7 @@ export default function About() {
         </div>
 
         <div className="relative z-10 max-w-4xl space-y-8">
-          <motion.h1 
+          <motion.h1
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
@@ -55,7 +55,7 @@ export default function About() {
           >
             The Vision Behind GAMEX
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
@@ -80,7 +80,7 @@ export default function About() {
               </p>
             </div>
           </div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -88,8 +88,8 @@ export default function About() {
             className="relative"
           >
             <div className="absolute -inset-4 bg-brand-red/5 blur-3xl"></div>
-            <img 
-              src="https://images.unsplash.com/photo-1592155931584-901ac15763e3?q=80&w=2075&auto=format&fit=crop" 
+            <img
+              src="https://images.unsplash.com/photo-1592155931584-901ac15763e3?q=80&w=2075&auto=format&fit=crop"
               className="relative w-full aspect-[4/3] object-cover rounded-sm border border-white/5 grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl"
               alt="Controller"
               referrerPolicy="no-referrer"
@@ -106,15 +106,14 @@ export default function About() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
           {standards.map((s, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`p-12 bg-[#111] border border-white/5 rounded-sm hover:border-brand-red/30 transition-all group flex flex-col ${
-                i === 0 || i === 3 ? 'md:col-span-2' : 'md:col-span-1'
-              }`}
+              className={`p-12 bg-[#111] border border-white/5 rounded-sm hover:border-brand-red/30 transition-all group flex flex-col ${i === 0 || i === 3 ? 'md:col-span-2' : 'md:col-span-1'
+                }`}
             >
               <div className="mb-10 w-12 h-12 flex items-start justify-start group-hover:scale-110 transition-transform duration-300">
                 {s.icon}
@@ -132,7 +131,7 @@ export default function About() {
       <section className="py-32 px-6 md:px-24 bg-black overflow-hidden">
         <h2 className="text-4xl font-display uppercase tracking-tight text-white mb-20">Leadership</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -140,8 +139,8 @@ export default function About() {
             className="relative grayscale hover:grayscale-0 transition-all duration-1000"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-            <img 
-              src="/src/assets/images/regenerated_image_1778829241997.png" 
+            <img
+              src="/src/assets/images/me.jpg"
               className="w-full aspect-square object-cover rounded-sm border border-white/10"
               alt="Elias Vance"
               referrerPolicy="no-referrer"
@@ -149,8 +148,8 @@ export default function About() {
           </motion.div>
           <div className="space-y-8">
             <div className="space-y-2">
-              <h3 className="text-6xl md:text-8xl font-display uppercase text-white leading-none">Elias Vance</h3>
-              <p className="text-brand-red text-sm font-bold uppercase tracking-[0.4em]">Editor in Chief</p>
+              <h3 className="text-6xl md:text-8xl font-display uppercase text-white leading-none">ROYHAN ALFITRA</h3>
+              <p className="text-brand-red text-sm font-bold uppercase tracking-[0.4em]">DEVELOPER</p>
             </div>
             <div className="space-y-6 text-gamex-neutral leading-relaxed font-sans text-lg">
               <p>

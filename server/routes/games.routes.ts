@@ -35,21 +35,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 // POST /api/games  — admin only
 router.post('/', requireAuth, async (req: Request, res: Response) => {
-  const { title, developer, releaseYear, genre, rating, coverImage, heroImage, rawgId, platforms } = req.body;
+  const { title, developer, releaseYear, genre, rating, coverImage, heroImage, gridImage, rawgId, platforms } = req.body;
 
   if (!title || !developer || !releaseYear || !genre) {
     return res.status(400).json({ error: 'title, developer, releaseYear, and genre are required' });
   }
 
   const game = await prisma.game.create({
-    data: { title, developer, releaseYear: Number(releaseYear), genre, rating: Number(rating) || 0, coverImage, heroImage, rawgId, platforms: platforms || [] },
+    data: { title, developer, releaseYear: Number(releaseYear), genre, rating: Number(rating) || 0, coverImage, heroImage, gridImage, rawgId, platforms: platforms || [] },
   });
   return res.status(201).json(game);
 });
 
 // PATCH /api/games/:id  — admin only
 router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
-  const { title, developer, releaseYear, genre, rating, coverImage, heroImage, platforms } = req.body;
+  const { title, developer, releaseYear, genre, rating, coverImage, heroImage, gridImage, platforms } = req.body;
 
   const game = await prisma.game.update({
     where: { id: req.params.id },
@@ -61,6 +61,7 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
       ...(rating !== undefined && { rating: Number(rating) }),
       ...(coverImage && { coverImage }),
       ...(heroImage && { heroImage }),
+      ...(gridImage !== undefined && { gridImage }),
       ...(platforms && { platforms }),
     },
   });

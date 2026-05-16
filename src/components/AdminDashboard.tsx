@@ -35,13 +35,25 @@ import {
   TrendingUp,
   History,
   Layout,
-  Maximize2
+  Maximize2,
+  Home
 } from 'lucide-react';
 
 type View = 'dashboard' | 'content' | 'editorial' | 'analytics' | 'settings';
 
-export default function AdminDashboard(_props: { key?: string }) {
+export default function AdminDashboard({ onGoHome }: { key?: string; onGoHome?: () => void }) {
   const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+
+  const handleEditReview = (reviewId: string) => {
+    setEditingReviewId(reviewId);
+    setCurrentView('editorial');
+  };
+
+  const handleNewReview = () => {
+    setEditingReviewId(null);
+    setCurrentView('editorial');
+  };
 
   return (
     <div className="fixed inset-0 z-[300] bg-gamex-black flex overflow-hidden font-sans">
@@ -85,6 +97,16 @@ export default function AdminDashboard(_props: { key?: string }) {
           />
         </nav>
 
+        <div className="px-4 pb-4">
+          <button
+            onClick={onGoHome}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-sm text-gamex-neutral hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <Home size={20} />
+            <span className="text-sm font-medium">Back to Home</span>
+          </button>
+        </div>
+
         <div className="p-6 border-t border-gamex-border mt-auto">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-sm overflow-hidden grayscale">
@@ -102,13 +124,13 @@ export default function AdminDashboard(_props: { key?: string }) {
       <main className="flex-1 overflow-y-auto bg-black">
         <AnimatePresence mode="wait">
           {currentView === 'dashboard' && (
-            <DashboardView key="dashboard" onAction={(v) => setCurrentView(v)} />
+            <DashboardView key="dashboard" onAction={(v) => setCurrentView(v)} onNewReview={handleNewReview} />
           )}
           {currentView === 'content' && (
-            <ContentManagerView key="content" onAction={(v) => setCurrentView(v)} />
+            <ContentManagerView key="content" onAction={(v) => setCurrentView(v)} onEditReview={handleEditReview} onNewReview={handleNewReview} />
           )}
           {currentView === 'editorial' && (
-            <EditorialView key="editorial" onBack={() => setCurrentView('content')} />
+            <EditorialView key={`editorial-${editingReviewId || 'new'}`} onBack={() => { setEditingReviewId(null); setCurrentView('content'); }} editingReviewId={editingReviewId} />
           )}
           {currentView === 'analytics' && (
             <AnalyticsView key="analytics" />
@@ -124,7 +146,7 @@ export default function AdminDashboard(_props: { key?: string }) {
 
 // --- SUB-VIEWS ---
 
-function DashboardView({ onAction }: { onAction: (v: View) => void, key?: string }) {
+function DashboardView({ onAction, onNewReview }: { onAction: (v: View) => void, onNewReview: () => void, key?: string }) {
   const [reviewList, setReviewList] = React.useState<import('../lib/api').Review[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -151,7 +173,7 @@ function DashboardView({ onAction }: { onAction: (v: View) => void, key?: string
           <h2 className="text-4xl font-display text-white uppercase tracking-tight">Dashboard</h2>
           <p className="text-gamex-text-secondary">Welcome back. Here's a brief overview of your editorial pipeline.</p>
         </div>
-        <button onClick={() => onAction('editorial')} className="bg-brand-red hover:bg-brand-red-hover text-white px-6 py-3 rounded-sm font-bold text-sm tracking-widest uppercase flex items-center gap-3 transition-colors">
+        <button onClick={onNewReview} className="bg-brand-red hover:bg-brand-red-hover text-white px-6 py-3 rounded-sm font-bold text-sm tracking-widest uppercase flex items-center gap-3 transition-colors">
           <Plus size={18} />
           Create New Review
         </button>
@@ -207,7 +229,7 @@ function DashboardView({ onAction }: { onAction: (v: View) => void, key?: string
   );
 }
 
-function ContentManagerView({ onAction }: { onAction: (v: View) => void, key?: string }) {
+function ContentManagerView({ onAction, onEditReview, onNewReview }: { onAction: (v: View) => void, onEditReview: (reviewId: string) => void, onNewReview: () => void, key?: string }) {
   const [reviewList, setReviewList] = React.useState<import('../lib/api').Review[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [actionMsg, setActionMsg] = React.useState('');
@@ -286,7 +308,7 @@ function ContentManagerView({ onAction }: { onAction: (v: View) => void, key?: s
               className="w-full bg-[#111] border border-gamex-border rounded-sm py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-brand-red transition-colors"
             />
           </div>
-          <button onClick={() => onAction('editorial')} className="bg-brand-red hover:bg-brand-red-hover text-white px-6 py-3 rounded-sm font-bold text-sm tracking-widest uppercase flex items-center gap-3 transition-colors">
+          <button onClick={onNewReview} className="bg-brand-red hover:bg-brand-red-hover text-white px-6 py-3 rounded-sm font-bold text-sm tracking-widest uppercase flex items-center gap-3 transition-colors">
             <Plus size={18} />
             New Review
           </button>
@@ -365,7 +387,7 @@ function ContentManagerView({ onAction }: { onAction: (v: View) => void, key?: s
                   <Eye size={16} />
                 </button>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); onAction('editorial'); }} 
+                  onClick={(e) => { e.stopPropagation(); onEditReview(r.id); }} 
                   title="Edit review"
                   className="p-2 rounded-sm hover:text-white hover:bg-white/5 cursor-pointer transition-colors"
                 >
@@ -398,7 +420,7 @@ function ContentManagerView({ onAction }: { onAction: (v: View) => void, key?: s
   );
 }
 
-function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
+function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editingReviewId?: string | null, key?: string }) {
   const [selectedGenres, setSelectedGenres] = useState(['Role-Playing (RPG)', 'Action RPG']);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['PC', 'PS5', 'Xbox Series X']);
   const [gameQuery, setGameQuery] = React.useState('');
@@ -425,17 +447,91 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
   const [selectedGame, setSelectedGame] = React.useState<import('../lib/api').RawgGameResult | null>(null);
   const [searching, setSearching] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [loadingReview, setLoadingReview] = React.useState(!!editingReviewId);
 
   // Form State
   const [reviewTitle, setReviewTitle] = React.useState('');
   const [slug, setSlug] = React.useState('');
   const [summary, setSummary] = React.useState('');
+  const [heroSummary, setHeroSummary] = React.useState('');
   const [content, setContent] = React.useState('');
   const [score, setScore] = React.useState<number>(0);
   const [verdictBadge, setVerdictBadge] = React.useState('Essential');
   const [prosText, setProsText] = React.useState('');
   const [consText, setConsText] = React.useState('');
   const [heroImage, setHeroImage] = React.useState('');
+  const [gridImage, setGridImage] = React.useState('');
+
+  // Performance Breakdown state
+  const [gameplayDepth, setGameplayDepth] = React.useState(5);
+  const [gameplayBalance, setGameplayBalance] = React.useState(5);
+  const [gameplayInnovation, setGameplayInnovation] = React.useState(5);
+  const [worldScale, setWorldScale] = React.useState(5);
+  const [worldAtmosphere, setWorldAtmosphere] = React.useState(5);
+  const [worldDetail, setWorldDetail] = React.useState(5);
+  const [perfLowestFps, setPerfLowestFps] = React.useState(30);
+  const [perfAverageFps, setPerfAverageFps] = React.useState(60);
+  const [perfHighestFps, setPerfHighestFps] = React.useState(120);
+
+  // Existing review ID for update tracking
+  const [existingReviewDbId, setExistingReviewDbId] = React.useState<string | null>(null);
+  const [existingGameDbId, setExistingGameDbId] = React.useState<string | null>(null);
+
+  // Load existing review data when editing
+  React.useEffect(() => {
+    if (!editingReviewId) return;
+    setLoadingReview(true);
+    import('../lib/api').then(async ({ reviews: reviewsApi }) => {
+      try {
+        const review = await reviewsApi.getOne(editingReviewId);
+        const game = review.game;
+        // Populate form fields
+        setReviewTitle(review.title);
+        setSlug(review.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+        setSummary(review.subtitle || '');
+        setHeroSummary(review.heroSummary || '');
+        setContent(review.content || '');
+        setScore(game ? game.rating / 10 : 0);
+        setVerdictBadge(review.verdict || 'Essential');
+        setProsText((review.highs || []).join('\n'));
+        setConsText((review.lows || []).join('\n'));
+        setUploadedScreenshots(review.screenshots || []);
+        // Performance breakdown
+        setGameplayDepth(review.gameplayDepth ?? 5);
+        setGameplayBalance(review.gameplayBalance ?? 5);
+        setGameplayInnovation(review.gameplayInnovation ?? 5);
+        setWorldScale(review.worldScale ?? 5);
+        setWorldAtmosphere(review.worldAtmosphere ?? 5);
+        setWorldDetail(review.worldDetail ?? 5);
+        setPerfLowestFps(review.perfLowestFps ?? 30);
+        setPerfAverageFps(review.perfAverageFps ?? 60);
+        setPerfHighestFps(review.perfHighestFps ?? 120);
+        // Game data
+        if (game) {
+          setSelectedGame({
+            rawgId: game.rawgId || '',
+            title: game.title,
+            coverImage: game.coverImage,
+            heroImage: game.heroImage,
+            developer: game.developer,
+            releaseYear: game.releaseYear,
+            platforms: game.platforms || [],
+            genres: game.genre ? game.genre.split(', ') : [],
+          } as any);
+          setHeroImage(game.heroImage || '');
+          setGridImage(game.gridImage || '');
+          setSelectedPlatforms(game.platforms || ['PC', 'PS5', 'Xbox Series X']);
+          setSelectedGenres(game.genre ? game.genre.split(', ') : ['Role-Playing (RPG)']);
+          setExistingGameDbId(game.id);
+        }
+        setExistingReviewDbId(review.id);
+      } catch (err) {
+        console.error('Failed to load review:', err);
+      } finally {
+        setLoadingReview(false);
+      }
+    });
+  }, [editingReviewId]);
 
   const searchGames = async () => {
     if (gameQuery.length < 2) return;
@@ -471,60 +567,80 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
       const { games, reviews } = await import('../lib/api');
       
       // 1. Check if game exists or create it
-      const allGames = await games.getAllAdmin();
-      let dbGame = allGames.find(g => g.rawgId === selectedGame.rawgId || g.title === selectedGame.title);
+      let dbGame: import('../lib/api').Game | undefined;
       
-      if (!dbGame) {
-        dbGame = await games.create({
-          title: selectedGame.title,
-          developer: selectedGame.developer || 'Unknown',
-          releaseYear: selectedGame.releaseYear || new Date().getFullYear(),
-          genre: selectedGenres.join(', '),
-          rating: score * 10,
-          coverImage: selectedGame.coverImage,
-          heroImage: heroImage || selectedGame.heroImage,
-          rawgId: selectedGame.rawgId,
-          platforms: selectedPlatforms
-        });
-      } else {
-        dbGame = await games.update(dbGame.id, {
+      if (existingGameDbId) {
+        // Editing existing review — update the game
+        dbGame = await games.update(existingGameDbId, {
           rating: score * 10,
           genre: selectedGenres.join(', '),
           platforms: selectedPlatforms,
-          heroImage: heroImage || dbGame.heroImage
+          heroImage: heroImage || selectedGame.heroImage,
+          gridImage: gridImage || undefined,
         });
+      } else {
+        const allGames = await games.getAllAdmin();
+        dbGame = allGames.find(g => g.rawgId === selectedGame.rawgId || g.title === selectedGame.title);
+        
+        if (!dbGame) {
+          dbGame = await games.create({
+            title: selectedGame.title,
+            developer: selectedGame.developer || 'Unknown',
+            releaseYear: selectedGame.releaseYear || new Date().getFullYear(),
+            genre: selectedGenres.join(', '),
+            rating: score * 10,
+            coverImage: selectedGame.coverImage,
+            heroImage: heroImage || selectedGame.heroImage,
+            gridImage: gridImage || null,
+            rawgId: selectedGame.rawgId,
+            platforms: selectedPlatforms
+          });
+        } else {
+          dbGame = await games.update(dbGame.id, {
+            rating: score * 10,
+            genre: selectedGenres.join(', '),
+            platforms: selectedPlatforms,
+            heroImage: heroImage || dbGame.heroImage,
+            gridImage: gridImage || dbGame.gridImage
+          });
+        }
       }
 
       // 2. Create or Update Review
       const highs = prosText.split('\n').filter(s => s.trim() !== '');
       const lows = consText.split('\n').filter(s => s.trim() !== '');
 
-      const allReviews = await reviews.getAllAdmin();
-      const existingReview = allReviews.find(r => r.gameId === dbGame!.id);
+      const reviewPayload = {
+        title: reviewTitle,
+        subtitle: summary,
+        heroSummary,
+        content: content,
+        screenshots: uploadedScreenshots,
+        highs,
+        lows,
+        verdict: verdictBadge,
+        status,
+        gameplayDepth,
+        gameplayBalance,
+        gameplayInnovation,
+        worldScale,
+        worldAtmosphere,
+        worldDetail,
+        perfLowestFps,
+        perfAverageFps,
+        perfHighestFps,
+      };
 
-      if (existingReview) {
-        await reviews.update(existingReview.id, {
-          title: reviewTitle,
-          subtitle: summary,
-          content: content,
-          screenshots: uploadedScreenshots,
-          highs,
-          lows,
-          verdict: verdictBadge,
-          status
-        });
+      if (existingReviewDbId) {
+        await reviews.update(existingReviewDbId, reviewPayload);
       } else {
-        await reviews.create({
-          gameId: dbGame.id,
-          title: reviewTitle,
-          subtitle: summary,
-          content: content,
-          screenshots: uploadedScreenshots,
-          highs,
-          lows,
-          verdict: verdictBadge,
-          status
-        });
+        const allReviews = await reviews.getAllAdmin();
+        const existingReview = allReviews.find(r => r.gameId === dbGame!.id);
+        if (existingReview) {
+          await reviews.update(existingReview.id, reviewPayload);
+        } else {
+          await reviews.create({ gameId: dbGame!.id, ...reviewPayload });
+        }
       }
 
       alert('Review ' + status + ' successfully!');
@@ -564,6 +680,20 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
         : [...prev, platform]
     );
   };
+
+  if (loadingReview) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="p-12 flex flex-col items-center justify-center h-full gap-4"
+      >
+        <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+        <span className="text-[10px] uppercase tracking-widest text-gamex-neutral font-bold">Loading review data...</span>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div 
@@ -682,6 +812,19 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
           </div>
 
           <div className="space-y-4">
+            <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] block">
+              Hero Summary <span className="text-brand-red/60 normal-case tracking-normal">(displayed on homepage hero section)</span>
+            </label>
+            <textarea 
+              rows={3}
+              value={heroSummary}
+              onChange={(e) => setHeroSummary(e.target.value)}
+              placeholder="Short teaser text shown on the homepage hero banner..."
+              className="w-full bg-[#111] border border-white/5 rounded-sm p-6 text-sm text-gamex-text-secondary focus:outline-none focus:border-brand-red/30 transition-colors"
+            />
+          </div>
+
+          <div className="space-y-4">
             <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] block">Story Summary</label>
             <textarea 
               rows={4}
@@ -692,7 +835,10 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
             />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 pt-8 border-t border-white/5">
+            <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] block">
+              Review <span className="text-brand-red/60 normal-case tracking-normal">(displayed below Visual Spectacle section)</span>
+            </label>
             <div className="flex items-center gap-1 bg-[#111] border border-white/5 p-1 rounded-sm">
               <ToolbarBtn icon={<Bold size={16} />} />
               <ToolbarBtn icon={<Italic size={16} />} />
@@ -708,7 +854,7 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
             </div>
             <textarea
               className="w-full min-h-[500px] bg-[#111] border border-white/5 rounded-sm p-10 text-lg leading-relaxed text-gamex-text-secondary font-sans focus:outline-none focus:border-brand-red/30 transition-colors"
-              placeholder="Write your review content here. You can use markdown or plain text..."
+              placeholder="Write your review content here. Use newlines to separate paragraphs..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
@@ -717,8 +863,9 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
           {/* Media Assets */}
           <div className="space-y-6 pt-12 border-t border-white/5">
             <h3 className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em]">Media Assets</h3>
-            <div className="grid grid-cols-2 gap-6">
-               <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-6">
+               {/* Hero Background (16:9) */}
+               <div className="col-span-2 space-y-3">
                   <span className="text-[9px] font-bold text-gamex-neutral uppercase tracking-widest">Hero Background (16:9)</span>
                   <label className="aspect-video relative overflow-hidden bg-[#111] border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center p-8 text-center group hover:border-brand-red/50 transition-colors cursor-pointer">
                     <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
@@ -733,50 +880,90 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
                       }
                     }} />
                     {heroImage ? (
-                      <img src={heroImage} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                      <>
+                        <img src={heroImage} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <span className="text-[9px] font-bold text-white uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-sm">Change Image</span>
+                        </div>
+                      </>
                     ) : (
                       <>
                         <UploadCloud size={32} className="text-gamex-neutral group-hover:text-brand-red transition-colors mb-4" />
                         <p className="text-xs text-gamex-text-secondary uppercase tracking-widest font-bold">Click to upload Hero</p>
+                        <p className="text-[9px] text-gamex-neutral mt-1">Recommended: 1920 × 1080</p>
                       </>
                     )}
                   </label>
                </div>
-               <div className="space-y-3">
-                  <span className="text-[9px] font-bold text-gamex-neutral uppercase tracking-widest">Screenshot Gallery</span>
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    {uploadedScreenshots.map((url, i) => (
-                      <div key={i} className="aspect-[4/3] relative bg-[#222] border border-white/5 rounded-sm overflow-hidden group">
-                        {url.match(/\.(mp4|webm|ogg)$/) ? (
-                          <video src={url} className="w-full h-full object-cover" muted loop />
-                        ) : (
-                          <img src={url} className="w-full h-full object-cover" />
-                        )}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                           <button 
-                             onClick={() => setUploadedScreenshots(prev => prev.filter((_, idx) => idx !== i))}
-                             className="text-brand-red hover:text-white"
-                           >
-                             <Trash2 size={20} />
-                           </button>
+
+               {/* Grid Image (2:3) */}
+               <div className="col-span-1 space-y-3">
+                  <span className="text-[9px] font-bold text-gamex-neutral uppercase tracking-widest">Grid Cover (2:3)</span>
+                  <label className="aspect-[2/3] relative overflow-hidden bg-[#111] border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center p-6 text-center group hover:border-brand-red/50 transition-colors cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                      if (!e.target.files || e.target.files.length === 0) return;
+                      const file = e.target.files[0];
+                      try {
+                        const { media } = await import('../lib/api');
+                        const res = await media.upload(file);
+                        setGridImage(res.url);
+                      } catch (error) {
+                        alert('Upload failed');
+                      }
+                    }} />
+                    {gridImage ? (
+                      <>
+                        <img src={gridImage} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <span className="text-[9px] font-bold text-white uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-sm">Change Image</span>
                         </div>
+                      </>
+                    ) : (
+                      <>
+                        <UploadCloud size={28} className="text-gamex-neutral group-hover:text-brand-red transition-colors mb-3" />
+                        <p className="text-[10px] text-gamex-text-secondary uppercase tracking-widest font-bold">Upload Grid</p>
+                        <p className="text-[9px] text-gamex-neutral mt-1">600 × 900</p>
+                      </>
+                    )}
+                  </label>
+               </div>
+            </div>
+
+            {/* Screenshots - full width below */}
+            <div className="space-y-3 pt-4">
+               <span className="text-[9px] font-bold text-gamex-neutral uppercase tracking-widest">Screenshot Gallery</span>
+               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
+                 {uploadedScreenshots.map((url, i) => (
+                   <div key={i} className="aspect-video relative bg-[#222] border border-white/5 rounded-sm overflow-hidden group">
+                     {url.match(/\.(mp4|webm|ogg)$/) ? (
+                       <video src={url} className="w-full h-full object-cover" muted loop />
+                     ) : (
+                       <img src={url} className="w-full h-full object-cover" />
+                     )}
+                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <button 
+                          onClick={() => setUploadedScreenshots(prev => prev.filter((_, idx) => idx !== i))}
+                          className="text-brand-red hover:text-white"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                     </div>
+                   </div>
+                 ))}
+                 <label className={`aspect-video bg-[#111] border border-dashed border-white/10 rounded-sm flex items-center justify-center cursor-pointer hover:border-brand-red/50 transition-colors ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                   <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
+                   {isUploading ? (
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin mb-2" />
+                        <span className="text-[8px] uppercase tracking-widest text-gamex-neutral">Uploading...</span>
                       </div>
-                    ))}
-                    <label className={`aspect-[4/3] bg-[#111] border border-dashed border-white/10 rounded-sm flex items-center justify-center cursor-pointer hover:border-brand-red/50 transition-colors ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
-                      {isUploading ? (
-                         <div className="flex flex-col items-center">
-                           <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin mb-2" />
-                           <span className="text-[8px] uppercase tracking-widest text-gamex-neutral">Uploading...</span>
-                         </div>
-                      ) : (
-                         <div className="flex flex-col items-center">
-                           <ImageIcon size={20} className="text-white/30 mb-2" />
-                           <span className="text-[8px] uppercase tracking-widest text-gamex-neutral">Add Media</span>
-                         </div>
-                      )}
-                    </label>
-                  </div>
+                   ) : (
+                      <div className="flex flex-col items-center">
+                        <ImageIcon size={20} className="text-white/30 mb-2" />
+                        <span className="text-[8px] uppercase tracking-widest text-gamex-neutral">Add Screenshot</span>
+                      </div>
+                   )}
+                 </label>
                </div>
             </div>
           </div>
@@ -828,6 +1015,85 @@ function EditorialView({ onBack }: { onBack: () => void, key?: string }) {
                       onChange={(e) => setConsText(e.target.value)}
                     />
                  </div>
+              </div>
+            </div>
+
+            {/* Performance Breakdown */}
+            <div>
+              <h3 className="text-[10px] font-bold text-gamex-neutral uppercase tracking-widest mb-6">Performance Breakdown</h3>
+              <div className="space-y-6">
+                {/* Gameplay & Mechanics */}
+                <div className="space-y-3 p-4 bg-[#1a1a1a] border border-white/5 rounded-sm">
+                  <span className="text-[9px] font-bold text-white uppercase tracking-widest block">Gameplay & Mechanics</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Depth</span>
+                      <select value={gameplayDepth} onChange={(e) => setGameplayDepth(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-16 text-center appearance-none cursor-pointer">
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Balance</span>
+                      <select value={gameplayBalance} onChange={(e) => setGameplayBalance(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-16 text-center appearance-none cursor-pointer">
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Innovation</span>
+                      <select value={gameplayInnovation} onChange={(e) => setGameplayInnovation(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-16 text-center appearance-none cursor-pointer">
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                      <span className="text-[8px] text-brand-red uppercase tracking-widest font-bold">Average</span>
+                      <span className="text-sm font-display text-brand-red">{((gameplayDepth + gameplayBalance + gameplayInnovation) / 3).toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* World Design */}
+                <div className="space-y-3 p-4 bg-[#1a1a1a] border border-white/5 rounded-sm">
+                  <span className="text-[9px] font-bold text-white uppercase tracking-widest block">World Design</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Scale</span>
+                      <select value={worldScale} onChange={(e) => setWorldScale(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-16 text-center appearance-none cursor-pointer">
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Atmosphere</span>
+                      <select value={worldAtmosphere} onChange={(e) => setWorldAtmosphere(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-16 text-center appearance-none cursor-pointer">
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Detail</span>
+                      <select value={worldDetail} onChange={(e) => setWorldDetail(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-16 text-center appearance-none cursor-pointer">
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Performance FPS */}
+                <div className="space-y-3 p-4 bg-[#1a1a1a] border border-white/5 rounded-sm">
+                  <span className="text-[9px] font-bold text-white uppercase tracking-widest block">Performance (FPS)</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Lowest FPS</span>
+                      <input type="number" min="0" max="999" value={perfLowestFps} onChange={(e) => setPerfLowestFps(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-20 text-center" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Average FPS</span>
+                      <input type="number" min="0" max="999" value={perfAverageFps} onChange={(e) => setPerfAverageFps(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-20 text-center" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] text-gamex-neutral uppercase tracking-widest font-bold">Highest FPS</span>
+                      <input type="number" min="0" max="999" value={perfHighestFps} onChange={(e) => setPerfHighestFps(Number(e.target.value))} className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-red w-20 text-center" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -27,6 +27,7 @@ model Game {
   rating      Int      @default(0)
   coverImage  String
   heroImage   String
+  gridImage   String?
   rawgId      String?  @unique
   platforms   String[]
   createdAt   DateTime @default(now())
@@ -40,6 +41,7 @@ model Review {
   game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   title       String
   subtitle    String
+  heroSummary String   @default("")
   content     String   @db.Text
   screenshots String[]
   publishedAt DateTime?
@@ -51,6 +53,22 @@ model Review {
   highs       String[]
   lows        String[]
   verdict     String   @db.Text
+
+  // Performance Breakdown — Gameplay & Mechanics (1-10 likert scale)
+  gameplayDepth      Int?
+  gameplayBalance    Int?
+  gameplayInnovation Int?
+
+  // Performance Breakdown — World Design (1-10 likert scale)
+  worldScale         Int?
+  worldAtmosphere    Int?
+  worldDetail        Int?
+
+  // Performance Breakdown — FPS metrics
+  perfLowestFps      Int?
+  perfAverageFps     Int?
+  perfHighestFps     Int?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

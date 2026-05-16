@@ -37,7 +37,7 @@ export default function ReviewCard({ review, game, onClick }: ReviewCardProps) {
         {/* Card Artwork */}
         <div className="relative w-full h-full">
           <img 
-            src={game.coverImage} 
+            src={game.gridImage || game.coverImage} 
             alt={game.title}
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"

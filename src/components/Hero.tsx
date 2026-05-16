@@ -5,10 +5,12 @@ import type { Game } from '../types';
 
 interface HeroProps {
   game: Game;
+  review?: { heroSummary?: string; subtitle?: string } | null;
   onReadLongForm: (gameId: string) => void;
 }
 
-export default function Hero({ game, onReadLongForm }: HeroProps) {
+export default function Hero({ game, review, onReadLongForm }: HeroProps) {
+  const heroText = review?.heroSummary || review?.subtitle || 'Explore the definitive review. Discover what makes this title essential.';
   return (
     <div className="relative h-[85vh] w-full overflow-hidden">
       {/* Background Image */}
@@ -39,7 +41,7 @@ export default function Hero({ game, onReadLongForm }: HeroProps) {
           </h1>
 
           <p className="text-sm md:text-base text-white max-w-md leading-[1.5] font-sans">
-            Explore the definitive version of Night City. With an overhauled perk system, revamped police AI, and the massive Phantom Liberty expansion, it's finally the game we were promised.
+            {heroText}
           </p>
 
           <div className="flex items-center gap-3 pt-6">

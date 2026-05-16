@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Bell, User } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import React, { useState } from 'react';
+import { Search, Bell } from 'lucide-react';
+import { motion, useScroll, useMotionValueEvent } from 'motion/react';
 
 interface NavigationProps {
   onNavigate?: (view: 'home' | 'about' | 'genres') => void;
@@ -10,11 +10,16 @@ interface NavigationProps {
 
 export default function Navigation({ onNavigate, currentView = 'home', isDetailOpen = false }: NavigationProps) {
   const { scrollY } = useScroll();
-  const backgroundColor = useTransform(
-    scrollY,
-    [0, 100],
-    ['rgba(20, 20, 20, 0)', 'rgba(20, 20, 20, 1)']
-  );
+  const [navHidden, setNavHidden] = useState(false);
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    if (latest > prev && latest > 100) {
+      setNavHidden(true);
+    } else {
+      setNavHidden(false);
+    }
+  });
 
   if (isDetailOpen) return null;
 
@@ -22,8 +27,9 @@ export default function Navigation({ onNavigate, currentView = 'home', isDetailO
 
   return (
     <motion.nav 
-      style={{ backgroundColor }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-[68px] transition-colors duration-300"
+      animate={{ y: navHidden ? -68 : 0 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-[68px] bg-gamex-black border-b border-gamex-border"
     >
       <div className="flex items-center gap-8 md:gap-12">
         <button 
