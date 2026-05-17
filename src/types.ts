@@ -8,6 +8,7 @@ export interface Game {
   coverImage: string;
   heroImage: string;
   gridImage?: string;
+  subGenres?: string[];
 }
 
 export interface Review {

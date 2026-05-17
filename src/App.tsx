@@ -115,7 +115,7 @@ export default function App() {
                 {featuredGame ? (
                   <>
                     <Hero game={featuredGame} review={reviews.find(r => r.gameId === featuredGame.id)} onReadLongForm={handleGameSelect} />
-                    <div className="relative z-10 space-y-12 -mt-16 md:-mt-24">
+                    <div className="relative z-10 space-y-16 mt-8 md:mt-12">
                       {[
                         "Action",
                         "Action-Adventure",
@@ -123,6 +123,7 @@ export default function App() {
                         "Simulation",
                         "Strategy",
                         "Shooter",
+                        "Fighting",
                         "Sports",
                         "Puzzle",
                         "Mobile"

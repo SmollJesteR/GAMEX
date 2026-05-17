@@ -124,6 +124,7 @@ export interface Game {
   gridImage?: string | null;
   rawgId?: string;
   platforms: string[];
+  subGenres?: string[];
   review?: Review;
 }
 

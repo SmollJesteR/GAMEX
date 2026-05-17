@@ -5,23 +5,23 @@ import { Zap, ShieldCheck, Theater, Flag } from 'lucide-react';
 export default function About() {
   const standards = [
     {
-      title: "Uncompromising Critique",
-      description: "We do not aggregate scores. Every review is a deep, singular editorial stance. We analyze mechanics, narrative ambition, and artistic merit without bowing to hype or consensus. If a masterpiece demands patience, we say so; if a blockbuster falters, we break down why.",
+      title: "Story & Gameplay First",
+      description: "Every review I write starts in the same place how did the story land, and how did the game actually feel to play. Not the frame rate on a benchmark machine. Not the resolution on a spec sheet. How did it feel when I was in it. Those two things tell you more about a game than any technical breakdown ever will.",
       icon: <Zap className="text-brand-red" size={28} />
     },
     {
-      title: "Verified Expertise",
-      description: "Our authors aren't just writers; they are veterans of the industry, competitive players, and narrative theorists.",
+      title: "Finished, Not Skimmed",
+      description: "I don't review games I haven't finished. Simple as that. You can't tell someone whether something is worth their time if you bailed at hour six. Every game on this site I played to the end good ending, bad ending, or painful drag to the credits.",
       icon: <ShieldCheck className="text-brand-red" size={28} />
     },
     {
-      title: "Cinematic Presentation",
-      description: "Text is treated as visual art. We pair high-impact typography with carefully curated, artifact-free imagery.",
+      title: "Personal, Not Professional",
+      description: "The moment a review starts sounding like it was written for a corporate quarterly report, it stops being useful. My reviews are based on my experience, my taste, and my honest reaction. I'm not calibrating my opinion to a metacritic aggregate. Take it or leave it but at least you know it's real.",
       icon: <Theater className="text-brand-red" size={28} />
     },
     {
-      title: "The Long View",
-      description: "While others chase the news cycle, we invest in retrospectives. We revisit titles years after launch to evaluate their lasting cultural impact, examining how patches, expansions, and shifting community sentiment have altered the original experience.",
+      title: "Reviews Don't Expire, But I Might Revisit",
+      description: "My review reflects how I felt about a game at the time I played it. That's the honest snapshot. I might go back to a game later after a big patch, after an expansion, after time changes how I see it and I'll write about that too. But the original score stays. That moment was real, and I'm not going to rewrite history.",
       icon: <Flag className="text-brand-red" size={28} />
     }
   ];
@@ -37,8 +37,8 @@ export default function About() {
       <section className="relative h-[80vh] flex items-center px-6 md:px-24 overflow-hidden pt-[68px]">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-40 brightness-50"
+            src="/src/assets/images/abouthero.jpeg"
+            className="w-full h-full object-cover opacity-90 brightness-80"
             alt="Hero Background"
             referrerPolicy="no-referrer"
           />
@@ -53,7 +53,7 @@ export default function About() {
             transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
             className="text-7xl md:text-9xl font-display uppercase tracking-tight leading-none text-white"
           >
-            The Vision Behind GAMEX
+            WHAT'S GAMEX?
           </motion.h1>
           <motion.p
             initial={{ y: 30, opacity: 0 }}
@@ -61,7 +61,7 @@ export default function About() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-lg md:text-xl text-gamex-neutral font-sans leading-relaxed max-w-2xl"
           >
-            We aren't just curating games; we are defining the culture. GAMEX is built on the philosophy that interactive entertainment deserves the same critical reverence, immersive presentation, and editorial depth as high cinema. This is where the art of play takes center stage.
+            GAMEX is my personal space to talk about games I've actually played, finished, and formed a real opinion on. No press copies, no review embargoes, no word count to fill. Just me, the game, and however many hours it took to get to the credits. If I liked it, I'll tell you why. If it wasted my time, I'll tell you that too.
           </motion.p>
         </div>
       </section>
@@ -70,13 +70,13 @@ export default function About() {
       <section className="py-32 px-6 md:px-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           <div className="space-y-12">
-            <h2 className="text-4xl font-display uppercase tracking-tight text-white">Our Mission</h2>
+            <h2 className="text-4xl font-display uppercase tracking-tight text-white">GAMEX Mission</h2>
             <div className="space-y-8 text-gamex-neutral leading-relaxed font-sans text-lg lg:text-xl">
-              <p>
-                To cut through the noise of an oversaturated market by delivering uncompromising, authoritative perspectives on the medium. We strip away the superficial metrics and focus on narratives, mechanics, and the raw emotional impact of interactive art.
+              <p className="text-md">
+                Most review sites sound like they're writing for an awards committee. I'm writing for people who actually play games or want to know if something is worth their weekend.
               </p>
-              <p>
-                Our platform is engineered for focus. The theater-dark aesthetic isn't just a stylistic choice; it's a functional environment designed to let the content breathe, command attention, and pull you directly into the worlds these creators have meticulously built.
+              <p className="text-md">
+                The mission here is simple: honest takes, finished games, zero glaze. I don't get paid to say something is good. So when I say it's good, I mean it.
               </p>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function About() {
       {/* Editorial Standards */}
       <section className="py-24 px-6 md:px-24 bg-[#0a0a0a]">
         <div className="text-center mb-20">
-          <h2 className="text-4xl font-display uppercase tracking-[0.2em] text-white">Editorial Standards</h2>
+          <h2 className="text-4xl font-display uppercase tracking-[0.2em] text-white">Review Standards</h2>
           <div className="w-16 h-0.5 bg-brand-red mx-auto mt-6"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
@@ -129,7 +129,7 @@ export default function About() {
 
       {/* Leadership Section */}
       <section className="py-32 px-6 md:px-24 bg-black overflow-hidden">
-        <h2 className="text-4xl font-display uppercase tracking-tight text-white mb-20">Leadership</h2>
+        <h2 className="text-4xl font-display uppercase tracking-tight text-white mb-20">Le Founder  </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -142,21 +142,22 @@ export default function About() {
             <img
               src="/src/assets/images/me.jpg"
               className="w-full aspect-square object-cover rounded-sm border border-white/10"
-              alt="Elias Vance"
+              alt="Smoll Jester"
               referrerPolicy="no-referrer"
             />
           </motion.div>
           <div className="space-y-8">
             <div className="space-y-2">
-              <h3 className="text-6xl md:text-8xl font-display uppercase text-white leading-none">ROYHAN ALFITRA</h3>
-              <p className="text-brand-red text-sm font-bold uppercase tracking-[0.4em]">DEVELOPER</p>
+              <h3 className="text-6xl md:text-8xl font-display uppercase text-white leading-none">SMOLLJESTER</h3>
+              <p className="text-brand-red text-sm font-bold uppercase tracking-[0.4em]">DEVELOPER & SOLE REVIEWER</p>
             </div>
             <div className="space-y-6 text-gamex-neutral leading-relaxed font-sans text-lg">
               <p>
-                Elias Vance brings over two decades of critical gaming journalism to GAMEX. With a background in film theory and interactive media, he has spent his career dismantling the barrier between games and traditional art forms. His editorial vision is defined by a ruthless demand for quality and a deep appreciation for auteur-driven narratives.
+                Muhammad Royhan Alfitra most people online know me as SmollJesteR.
+                I've been gaming since I was seven years old. Fighting games, RPGs, action, FPS I don't lock into one genre. If it's good, I'll play it. If I finish it, I might write about it here. This site isn't a publication. There's no editorial team, no review committee, no sponsor to keep happy. It's just me documenting my honest experience with games I've spent real time on.
               </p>
               <p>
-                Before founding GAMEX, Elias served as the lead cultural critic at several premier digital publications, where he pioneered long-form analytical reviews that treated game mechanics as storytelling devices. At GAMEX, he oversees all editorial direction, ensuring that every piece of content meets our uncompromising standards.
+                If something on here helped you decide whether to play a game or saved you from wasting money on one then the site is doing its job. I ain't get paid enough to give you a false review.
               </p>
             </div>
           </div>

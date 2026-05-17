@@ -423,6 +423,7 @@ function ContentManagerView({ onAction, onEditReview, onNewReview }: { onAction:
 function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editingReviewId?: string | null, key?: string }) {
   const [selectedGenres, setSelectedGenres] = useState(['Role-Playing (RPG)', 'Action RPG']);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['PC', 'PS5', 'Xbox Series X']);
+  const [selectedSubGenres, setSelectedSubGenres] = useState<string[]>([]);
   const [gameQuery, setGameQuery] = React.useState('');
   const [uploadedScreenshots, setUploadedScreenshots] = React.useState<string[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -448,6 +449,10 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
   const [searching, setSearching] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [loadingReview, setLoadingReview] = React.useState(!!editingReviewId);
+  const [manualEntry, setManualEntry] = React.useState(false);
+  const [manualGameTitle, setManualGameTitle] = React.useState('');
+  const [manualGameDeveloper, setManualGameDeveloper] = React.useState('');
+  const [manualGameYear, setManualGameYear] = React.useState(new Date().getFullYear());
 
   // Form State
   const [reviewTitle, setReviewTitle] = React.useState('');
@@ -522,6 +527,7 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
           setGridImage(game.gridImage || '');
           setSelectedPlatforms(game.platforms || ['PC', 'PS5', 'Xbox Series X']);
           setSelectedGenres(game.genre ? game.genre.split(', ') : ['Role-Playing (RPG)']);
+          setSelectedSubGenres(game.subGenres || []);
           setExistingGameDbId(game.id);
         }
         setExistingReviewDbId(review.id);
@@ -559,8 +565,14 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
   };
 
   const handleSave = async (status: 'DRAFT' | 'PUBLISHED') => {
-    if (!selectedGame) return alert('Please select a game first');
+    if (!selectedGame && !manualGameTitle && !existingGameDbId) return alert('Please select a game from RAWG or enter a game title manually');
     if (!reviewTitle) return alert('Please enter a review title');
+
+    const gameTitle = selectedGame?.title || manualGameTitle;
+    const gameDeveloper = selectedGame?.developer || manualGameDeveloper || 'Unknown';
+    const gameYear = selectedGame?.releaseYear || manualGameYear;
+    const gameCover = selectedGame?.coverImage || '';
+    const gameRawgId = selectedGame?.rawgId || undefined;
     
     setSaving(true);
     try {
@@ -575,31 +587,34 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
           rating: score * 10,
           genre: selectedGenres.join(', '),
           platforms: selectedPlatforms,
-          heroImage: heroImage || selectedGame.heroImage,
+          subGenres: selectedSubGenres,
+          heroImage: heroImage || selectedGame?.heroImage || '',
           gridImage: gridImage || undefined,
         });
       } else {
         const allGames = await games.getAllAdmin();
-        dbGame = allGames.find(g => g.rawgId === selectedGame.rawgId || g.title === selectedGame.title);
+        dbGame = allGames.find(g => (gameRawgId && g.rawgId === gameRawgId) || g.title === gameTitle);
         
         if (!dbGame) {
           dbGame = await games.create({
-            title: selectedGame.title,
-            developer: selectedGame.developer || 'Unknown',
-            releaseYear: selectedGame.releaseYear || new Date().getFullYear(),
+            title: gameTitle,
+            developer: gameDeveloper,
+            releaseYear: gameYear || new Date().getFullYear(),
             genre: selectedGenres.join(', '),
             rating: score * 10,
-            coverImage: selectedGame.coverImage,
-            heroImage: heroImage || selectedGame.heroImage,
+            coverImage: gameCover,
+            heroImage: heroImage || gameCover,
             gridImage: gridImage || null,
-            rawgId: selectedGame.rawgId,
-            platforms: selectedPlatforms
+            rawgId: gameRawgId,
+            platforms: selectedPlatforms,
+            subGenres: selectedSubGenres
           });
         } else {
           dbGame = await games.update(dbGame.id, {
             rating: score * 10,
             genre: selectedGenres.join(', '),
             platforms: selectedPlatforms,
+            subGenres: selectedSubGenres,
             heroImage: heroImage || dbGame.heroImage,
             gridImage: gridImage || dbGame.gridImage
           });
@@ -660,9 +675,22 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
     "Simulation",
     "Strategy",
     "Shooter",
+    "Fighting",
     "Sports",
     "Puzzle",
     "Mobile"
+  ];
+
+  const allSubGenres = [
+    "Hack & Slash", "Beat 'em Up", "Stealth", "Survival", "Battle Royale", "Rhythm", "Open World", "Metroidvania", "Souls-like", "Narrative Adventure", "Sandbox",
+    "JRPG", "WRPG", "MMORPG", "Tactical RPG", "Roguelike", "Roguelite", "Dungeon Crawler", "Action RPG",
+    "Life Sim", "City Builder", "Farming Sim", "Flight Sim", "Business & Tycoon", "Vehicle Sim", "Social Sim",
+    "Real-Time Strategy (RTS)", "Turn-Based Strategy (TBS)", "Tower Defense", "4X", "Grand Strategy", "Auto Chess",
+    "First-Person Shooter (FPS)", "Third-Person Shooter (TPS)", "Top-Down Shooter", "Bullet Hell", "Tactical Shooter",
+    "2D Fighter", "3D Fighter", "Arena Fighter", "Platform Fighter",
+    "Football & Soccer", "Racing", "Basketball", "Baseball", "Combat Sports", "Extreme Sports", "Sports Management",
+    "Logic", "Physics-Based", "Match-3", "Escape Room", "Hidden Object", "Word & Trivia",
+    "Hyper-Casual", "Idle & Clicker", "Gacha", "Card & Collectible"
   ];
 
   const toggleGenre = (genre: string) => {
@@ -670,6 +698,14 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
       prev.includes(genre) 
         ? prev.filter(g => g !== genre) 
         : [...prev, genre]
+    );
+  };
+
+  const toggleSubGenre = (subGenre: string) => {
+    setSelectedSubGenres(prev =>
+      prev.includes(subGenre)
+        ? prev.filter(s => s !== subGenre)
+        : [...prev, subGenre]
     );
   };
 
@@ -733,63 +769,117 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
         {/* Main Editor */}
         <div className="col-span-8 space-y-8">
           <div className="space-y-4 pb-8 border-b border-white/5">
-            <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] block">
-              Search Game Database (RAWG)
-            </label>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={gameQuery}
-                onChange={(e) => setGameQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && searchGames()}
-                placeholder="Search by game title (e.g. Elden Ring)..."
-                className="flex-1 bg-[#111] border border-white/5 rounded-sm py-3 px-4 text-sm focus:outline-none focus:border-brand-red transition-colors"
-              />
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] block">
+                {manualEntry ? 'Manual Game Entry' : 'Search Game Database (RAWG)'}
+              </label>
               <button
-                onClick={searchGames}
-                disabled={searching}
-                className="px-6 py-3 bg-brand-red hover:bg-brand-red-hover disabled:opacity-50 text-white rounded-sm font-bold text-[10px] tracking-widest uppercase transition-colors"
+                onClick={() => { setManualEntry(!manualEntry); setSelectedGame(null); setGameResults([]); setGameQuery(''); }}
+                className="text-[9px] font-bold uppercase tracking-widest text-brand-red hover:text-white transition-colors"
               >
-                {searching ? 'Searching...' : 'Search'}
+                {manualEntry ? '← Back to RAWG Search' : "Can't find it? Add Manually"}
               </button>
             </div>
 
-            {gameResults.length > 0 && (
-              <div className="bg-[#111] border border-white/10 rounded-sm divide-y divide-white/5 max-h-72 overflow-y-auto">
-                {gameResults.map((g) => (
-                  <button
-                    key={g.rawgId}
-                    onClick={() => selectGame(g)}
-                    className="w-full flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors text-left"
-                  >
-                    {g.coverImage && (
-                      <img src={g.coverImage} className="w-10 h-10 object-cover rounded-sm shrink-0" alt={g.title} />
-                    )}
-                    <div>
-                      <p className="text-sm font-bold text-white">{g.title}</p>
-                      <p className="text-[10px] text-gamex-neutral">
-                        {g.developer || 'Unknown Developer'} · {g.releaseYear || 'TBA'} · {g.genres.slice(0, 2).join(', ')}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {selectedGame && (
-              <div className="flex items-center gap-4 px-4 py-3 bg-brand-red/10 border border-brand-red/20 rounded-sm">
-                <img src={selectedGame.coverImage} className="w-10 h-10 object-cover rounded-sm shrink-0" alt={selectedGame.title} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{selectedGame.title}</p>
-                  <p className="text-[10px] text-gamex-neutral">{selectedGame.developer} · {selectedGame.releaseYear}</p>
+            {manualEntry ? (
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={manualGameTitle}
+                  onChange={(e) => {
+                    setManualGameTitle(e.target.value);
+                    if (!reviewTitle || reviewTitle === '') {
+                      setReviewTitle(e.target.value + ' Review');
+                      setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+                    }
+                  }}
+                  placeholder="Game Title (e.g. Tekken 8)..."
+                  className="w-full bg-[#111] border border-white/5 rounded-sm py-3 px-4 text-sm focus:outline-none focus:border-brand-red transition-colors"
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    value={manualGameDeveloper}
+                    onChange={(e) => setManualGameDeveloper(e.target.value)}
+                    placeholder="Developer (e.g. Bandai Namco)..."
+                    className="bg-[#111] border border-white/5 rounded-sm py-3 px-4 text-sm focus:outline-none focus:border-brand-red transition-colors"
+                  />
+                  <input
+                    type="number"
+                    value={manualGameYear}
+                    onChange={(e) => setManualGameYear(Number(e.target.value))}
+                    placeholder="Release Year"
+                    className="bg-[#111] border border-white/5 rounded-sm py-3 px-4 text-sm focus:outline-none focus:border-brand-red transition-colors"
+                  />
                 </div>
-                <button
-                  onClick={() => setSelectedGame(null)}
-                  className="text-gamex-neutral hover:text-brand-red transition-colors text-[10px] uppercase tracking-widest font-bold shrink-0"
-                >
-                  Clear
-                </button>
+                {manualGameTitle && (
+                  <div className="flex items-center gap-4 px-4 py-3 bg-white/5 border border-white/10 rounded-sm">
+                    <div className="w-10 h-10 bg-[#222] rounded-sm flex items-center justify-center text-gamex-neutral text-[10px] font-bold uppercase shrink-0">?</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white">{manualGameTitle}</p>
+                      <p className="text-[10px] text-gamex-neutral">{manualGameDeveloper || 'Unknown'} · {manualGameYear} · Manual Entry</p>
+                    </div>
+                  </div>
+                )}
               </div>
+            ) : (
+              <>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={gameQuery}
+                    onChange={(e) => setGameQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && searchGames()}
+                    placeholder="Search by game title (e.g. Elden Ring)..."
+                    className="flex-1 bg-[#111] border border-white/5 rounded-sm py-3 px-4 text-sm focus:outline-none focus:border-brand-red transition-colors"
+                  />
+                  <button
+                    onClick={searchGames}
+                    disabled={searching}
+                    className="px-6 py-3 bg-brand-red hover:bg-brand-red-hover disabled:opacity-50 text-white rounded-sm font-bold text-[10px] tracking-widest uppercase transition-colors"
+                  >
+                    {searching ? 'Searching...' : 'Search'}
+                  </button>
+                </div>
+
+                {gameResults.length > 0 && (
+                  <div className="bg-[#111] border border-white/10 rounded-sm divide-y divide-white/5 max-h-72 overflow-y-auto">
+                    {gameResults.map((g) => (
+                      <button
+                        key={g.rawgId}
+                        onClick={() => selectGame(g)}
+                        className="w-full flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors text-left"
+                      >
+                        {g.coverImage && (
+                          <img src={g.coverImage} className="w-10 h-10 object-cover rounded-sm shrink-0" alt={g.title} />
+                        )}
+                        <div>
+                          <p className="text-sm font-bold text-white">{g.title}</p>
+                          <p className="text-[10px] text-gamex-neutral">
+                            {g.developer || 'Unknown Developer'} · {g.releaseYear || 'TBA'} · {g.genres.slice(0, 2).join(', ')}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {selectedGame && (
+                  <div className="flex items-center gap-4 px-4 py-3 bg-brand-red/10 border border-brand-red/20 rounded-sm">
+                    {selectedGame.coverImage && <img src={selectedGame.coverImage} className="w-10 h-10 object-cover rounded-sm shrink-0" alt={selectedGame.title} />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white">{selectedGame.title}</p>
+                      <p className="text-[10px] text-gamex-neutral">{selectedGame.developer} · {selectedGame.releaseYear}</p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedGame(null)}
+                      className="text-gamex-neutral hover:text-brand-red transition-colors text-[10px] uppercase tracking-widest font-bold shrink-0"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -1132,6 +1222,24 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
                         }`}
                       >
                         {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <span className="text-[8px] font-bold text-gamex-neutral uppercase tracking-widest block">Sub-Genres <span className="text-brand-red/60 normal-case tracking-normal">(shown as tags on review detail hero)</span></span>
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+                    {allSubGenres.map(sg => (
+                      <button 
+                        key={sg} 
+                        onClick={() => toggleSubGenre(sg)}
+                        className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-[1px] transition-all border ${
+                          selectedSubGenres.includes(sg) 
+                            ? 'bg-white/20 border-white/40 text-white' 
+                            : 'bg-white/5 border-white/5 text-gamex-neutral hover:text-white'
+                        }`}
+                      >
+                        {sg}
                       </button>
                     ))}
                   </div>

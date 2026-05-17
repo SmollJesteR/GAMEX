@@ -14,13 +14,13 @@ export default function Hero({ game, review, onReadLongForm }: HeroProps) {
   return (
     <div className="relative h-[85vh] w-full overflow-hidden">
       {/* Background Image */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${game.heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-transparent to-transparent" />
       </div>
-      
+
       {/* Overlays */}
       <div className="absolute inset-0 cinematic-vignette" />
 
@@ -33,7 +33,7 @@ export default function Hero({ game, review, onReadLongForm }: HeroProps) {
           className="space-y-4 max-w-2xl"
         >
           <div className="flex items-center gap-2">
-            <span className="px-1.5 py-0.5 bg-brand-red text-white text-[10px] font-bold uppercase tracking-wider rounded-[2px]">Masterpiece Review</span>
+            <span className="px-1.5 py-0.5 bg-brand-red text-white text-[10px] font-bold uppercase tracking-wider rounded-[2px]">Latest Review</span>
           </div>
 
           <h1 className="text-5xl md:text-[72px] leading-[1.1] font-display uppercase tracking-[0.04em]">
@@ -45,15 +45,11 @@ export default function Hero({ game, review, onReadLongForm }: HeroProps) {
           </p>
 
           <div className="flex items-center gap-3 pt-6">
-            <button 
+            <button
               onClick={() => onReadLongForm(game.id)}
               className="flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-[4px] font-bold text-sm hover:bg-white/80 transition-all"
             >
               <Play size={20} fill="currentColor" />
-              Video Review
-            </button>
-            <button className="flex items-center gap-2 bg-[#564D4D]/60 backdrop-blur-md text-white px-6 py-2.5 rounded-[4px] font-bold text-sm hover:bg-[#564D4D]/80 transition-all">
-              <Info size={20} />
               Read Review
             </button>
           </div>

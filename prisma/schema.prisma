@@ -30,6 +30,7 @@ model Game {
   gridImage   String?
   rawgId      String?  @unique
   platforms   String[]
+  subGenres   String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   review      Review?

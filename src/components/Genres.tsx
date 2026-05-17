@@ -15,6 +15,7 @@ export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: stri
     { name: "Simulation", image: "https://images.unsplash.com/photo-1518091044133-aa24e12e1ec7?q=80&w=2070&auto=format&fit=crop" },
     { name: "Strategy", image: "https://images.unsplash.com/photo-1560416313-414b33c856a9?q=80&w=2070&auto=format&fit=crop" },
     { name: "Shooter", image: "https://images.unsplash.com/photo-1629752187622-c2c974534946?q=80&w=2070&auto=format&fit=crop" },
+    { name: "Fighting", image: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2070&auto=format&fit=crop" },
     { name: "Sports", image: "https://images.unsplash.com/photo-1552072805-2a9039d00e57?q=80&w=2070&auto=format&fit=crop" },
     { name: "Puzzle", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2070&auto=format&fit=crop" },
     { name: "Mobile", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" }

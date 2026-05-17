@@ -135,17 +135,16 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
           >
             <div className="space-y-6 max-w-3xl">
               <div className="flex flex-wrap gap-2">
-                {game.genre.split(' ').map(tag => (
+                {game.genre.split(', ').map(tag => (
                   <span key={tag} className="px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-[2px] text-[9px] font-bold uppercase tracking-widest text-white border border-white/10">
                     {tag}
                   </span>
                 ))}
-                <span className="px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-[2px] text-[9px] font-bold uppercase tracking-widest text-white border border-white/10">
-                  OPEN WORLD
-                </span>
-                <span className="px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-[2px] text-[9px] font-bold uppercase tracking-widest text-white border border-white/10">
-                  DARK FANTASY
-                </span>
+                {(game as any).subGenres?.map((tag: string) => (
+                  <span key={tag} className="px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-[2px] text-[9px] font-bold uppercase tracking-widest text-white border border-white/10">
+                    {tag}
+                  </span>
+                ))}
               </div>
 
               <h1 className="text-6xl md:text-9xl tracking-tight leading-none uppercase font-display">
