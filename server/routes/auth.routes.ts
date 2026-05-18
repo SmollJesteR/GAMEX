@@ -56,4 +56,30 @@ router.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
   return res.json({ admin });
 });
 
+// PATCH /api/auth/me (update admin profile)
+router.patch('/me', requireAuth, async (req: AuthRequest, res: Response) => {
+  const { name, email, password, avatarUrl } = req.body;
+  const updateData: any = {};
+
+  if (name !== undefined) updateData.name = name;
+  if (email !== undefined) updateData.email = email;
+  if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+  
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    updateData.passwordHash = await bcrypt.hash(password, salt);
+  }
+
+  try {
+    const admin = await prisma.adminUser.update({
+      where: { id: req.adminId },
+      data: updateData,
+      select: { id: true, email: true, name: true, role: true, avatarUrl: true },
+    });
+    return res.json({ admin });
+  } catch (error) {
+    return res.status(400).json({ error: 'Failed to update profile' });
+  }
+});
+
 export default router;

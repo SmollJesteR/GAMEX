@@ -44,6 +44,13 @@ type View = 'dashboard' | 'content' | 'editorial' | 'analytics' | 'settings';
 export default function AdminDashboard({ onGoHome }: { key?: string; onGoHome?: () => void }) {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [admin, setAdmin] = useState<import('../lib/api').AdminUser | null>(null);
+
+  React.useEffect(() => {
+    import('../lib/api').then(({ auth }) => {
+      auth.me().then(res => setAdmin(res.admin)).catch(console.error);
+    });
+  }, []);
 
   const handleEditReview = (reviewId: string) => {
     setEditingReviewId(reviewId);
@@ -109,12 +116,12 @@ export default function AdminDashboard({ onGoHome }: { key?: string; onGoHome?: 
 
         <div className="p-6 border-t border-gamex-border mt-auto">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-sm overflow-hidden grayscale">
-                <img src="/src/assets/images/regenerated_image_1778829241997.png" className="w-full h-full object-cover" alt="Profile" />
+             <div className="w-10 h-10 rounded-sm overflow-hidden grayscale bg-[#222]">
+                <img src={admin?.avatarUrl || "/src/assets/images/regenerated_image_1778829241997.png"} className="w-full h-full object-cover" alt="Profile" />
              </div>
              <div>
-                <p className="text-sm font-bold text-white leading-none">Sarah Connor</p>
-                <p className="text-[10px] text-gamex-neutral font-medium mt-1.5">Lead Editor</p>
+                <p className="text-sm font-bold text-white leading-none">{admin?.name || "Sarah Connor"}</p>
+                <p className="text-[10px] text-gamex-neutral font-medium mt-1.5">{admin?.role || "Lead Editor"}</p>
              </div>
           </div>
         </div>
@@ -130,7 +137,7 @@ export default function AdminDashboard({ onGoHome }: { key?: string; onGoHome?: 
             <ContentManagerView key="content" onAction={(v) => setCurrentView(v)} onEditReview={handleEditReview} onNewReview={handleNewReview} />
           )}
           {currentView === 'editorial' && (
-            <EditorialView key={`editorial-${editingReviewId || 'new'}`} onBack={() => { setEditingReviewId(null); setCurrentView('content'); }} editingReviewId={editingReviewId} />
+            <EditorialView key={`editorial-${editingReviewId || 'new'}`} onBack={() => { setEditingReviewId(null); setCurrentView('content'); }} editingReviewId={editingReviewId} admin={admin} />
           )}
           {currentView === 'analytics' && (
             <AnalyticsView key="analytics" />
@@ -205,7 +212,7 @@ function DashboardView({ onAction, onNewReview }: { onAction: (v: View) => void,
             <div key={r.id} className="grid grid-cols-12 gap-4 px-8 py-6 items-center text-sm group hover:bg-[#151515] transition-colors cursor-pointer" onClick={() => onAction('content')}>
               <div className="col-span-5 flex items-center gap-4">
                 <div className="w-16 h-10 rounded-sm overflow-hidden border border-white/5 bg-[#222]">
-                  {r.game?.coverImage && <img src={r.game.coverImage} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt={r.title} />}
+                  {(r.game?.coverImage || r.game?.gridImage || r.game?.heroImage) && <img src={r.game.coverImage || r.game.gridImage || r.game.heroImage || ''} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt={r.title} />}
                 </div>
                 <h3 className="font-bold text-white line-clamp-1">{r.game?.title || r.title}</h3>
               </div>
@@ -358,7 +365,7 @@ function ContentManagerView({ onAction, onEditReview, onNewReview }: { onAction:
             <div key={r.id} className="grid grid-cols-12 gap-4 px-8 py-6 bg-[#111] border border-white/5 rounded-sm items-center group hover:border-white/20 transition-all">
               <div className="col-span-1">
                 <div className="w-12 h-16 bg-[#222] rounded-[1px] border border-white/10 overflow-hidden">
-                  <img src={r.game?.coverImage || ''} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-transform duration-500 group-hover:scale-110" alt={r.game?.title ?? r.title} />
+                  <img src={r.game?.coverImage || r.game?.gridImage || r.game?.heroImage || ''} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-transform duration-500 group-hover:scale-110" alt={r.game?.title ?? r.title} />
                 </div>
               </div>
               <div className="col-span-5 space-y-1.5">
@@ -420,7 +427,7 @@ function ContentManagerView({ onAction, onEditReview, onNewReview }: { onAction:
   );
 }
 
-function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editingReviewId?: string | null, key?: string }) {
+function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void, editingReviewId?: string | null, admin?: import('../lib/api').AdminUser | null, key?: string }) {
   const [selectedGenres, setSelectedGenres] = useState(['Role-Playing (RPG)', 'Action RPG']);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['PC', 'PS5', 'Xbox Series X']);
   const [selectedSubGenres, setSelectedSubGenres] = useState<string[]>([]);
@@ -590,6 +597,7 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
           subGenres: selectedSubGenres,
           heroImage: heroImage || selectedGame?.heroImage || '',
           gridImage: gridImage || undefined,
+          coverImage: gameCover || gridImage || heroImage || undefined,
         });
       } else {
         const allGames = await games.getAllAdmin();
@@ -602,8 +610,8 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
             releaseYear: gameYear || new Date().getFullYear(),
             genre: selectedGenres.join(', '),
             rating: score * 10,
-            coverImage: gameCover,
-            heroImage: heroImage || gameCover,
+            coverImage: gameCover || gridImage || heroImage || '',
+            heroImage: heroImage || gameCover || '',
             gridImage: gridImage || null,
             rawgId: gameRawgId,
             platforms: selectedPlatforms,
@@ -616,7 +624,8 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
             platforms: selectedPlatforms,
             subGenres: selectedSubGenres,
             heroImage: heroImage || dbGame.heroImage,
-            gridImage: gridImage || dbGame.gridImage
+            gridImage: gridImage || dbGame.gridImage,
+            coverImage: gameCover || gridImage || heroImage || dbGame.coverImage
           });
         }
       }
@@ -644,6 +653,9 @@ function EditorialView({ onBack, editingReviewId }: { onBack: () => void, editin
         perfLowestFps,
         perfAverageFps,
         perfHighestFps,
+        authorName: admin?.name || 'GAMEX Editorial',
+        authorRole: admin?.role || 'Staff Critic',
+        authorAvatar: admin?.avatarUrl || '',
       };
 
       if (existingReviewDbId) {
@@ -1324,8 +1336,68 @@ function AnalyticsView(_props: { key?: string }) {
 }
 
 function SettingsView(_props: { key?: string }) {
-  const [layout, setLayout] = useState('poster');
-  const [density, setDensity] = useState('comfortable');
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [avatarUrl, setAvatarUrl] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    async function loadProfile() {
+      try {
+        const { auth } = await import('../lib/api');
+        const res = await auth.me();
+        if (res.admin) {
+          setName(res.admin.name || '');
+          setEmail(res.admin.email || '');
+          setAvatarUrl(res.admin.avatarUrl || '');
+        }
+      } catch (err) {
+        console.error('Failed to load profile', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProfile();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { auth } = await import('../lib/api');
+      const data: any = { name, email, avatarUrl };
+      if (password) data.password = password;
+      await auth.updateProfile(data);
+      alert('Profile updated successfully');
+      setPassword(''); // Clear password field after save
+    } catch (err) {
+      alert('Failed to update profile');
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      const { media } = await import('../lib/api');
+      const res = await media.upload(file);
+      setAvatarUrl(res.url);
+    } catch (error) {
+      alert('Upload failed');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-16 max-w-6xl flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <motion.div 
@@ -1336,7 +1408,7 @@ function SettingsView(_props: { key?: string }) {
     >
       <div className="space-y-6 mb-16">
         <h2 className="text-8xl font-display text-white uppercase tracking-tight leading-none">SETTINGS</h2>
-        <p className="text-gamex-neutral text-lg">Manage your account, editorial preferences, and platform configurations.</p>
+        <p className="text-gamex-neutral text-lg">Manage your account and profile settings.</p>
       </div>
 
       <div className="space-y-12">
@@ -1346,65 +1418,58 @@ function SettingsView(_props: { key?: string }) {
           
           <div className="flex gap-12">
             <div className="space-y-4 flex flex-col items-start">
-               <div className="w-28 h-28 bg-[#222] border border-white/10 rounded-sm overflow-hidden grayscale">
-                  <img src="/src/assets/images/regenerated_image_1778829241997.png" className="w-full h-full object-cover" alt="Avatar" />
-               </div>
-               <button className="text-[11px] font-bold text-brand-red uppercase tracking-widest hover:underline text-left">Change Avatar</button>
+               <label className="w-28 h-28 bg-[#222] border border-white/10 rounded-sm overflow-hidden grayscale cursor-pointer group relative flex flex-col items-center justify-center">
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                  {avatarUrl ? (
+                    <img src={avatarUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" alt="Avatar" />
+                  ) : (
+                    <div className="text-gamex-neutral group-hover:text-white transition-colors flex flex-col items-center">
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Upload</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-[9px] font-bold text-white uppercase tracking-widest bg-black/60 px-2 py-1 rounded-sm">Change</span>
+                  </div>
+               </label>
             </div>
             
             <div className="flex-1 space-y-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-widest block">Display Name</label>
-                <input type="text" defaultValue="Sarah Connor" className="w-full bg-[#1e1e1e] border-none rounded-sm p-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-red/50 transition-all font-medium" />
+                <input 
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-[#1e1e1e] border-none rounded-sm p-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-red/50 transition-all font-medium" 
+                />
               </div>
               <div className="space-y-3">
                 <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-widest block">Email Address</label>
-                <input type="email" defaultValue="sarah.connor@gamex.com" className="w-full bg-[#1e1e1e] border-none rounded-sm p-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-red/50 transition-all font-medium" />
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[#1e1e1e] border-none rounded-sm p-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-red/50 transition-all font-medium" 
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-widest block">New Password (leave blank to keep current)</label>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-[#1e1e1e] border-none rounded-sm p-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-red/50 transition-all font-medium" 
+                />
               </div>
               <div className="pt-4 flex justify-end">
-                <button className="px-10 py-4 bg-brand-red hover:bg-brand-red-hover text-white text-[11px] font-bold uppercase tracking-widest rounded-sm transition-all active:scale-95 shadow-lg shadow-brand-red/20">SAVE PROFILE</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#151515] border border-white/5 rounded-sm p-12 space-y-12">
-          <h3 className="text-[14px] font-bold text-white uppercase tracking-[0.2em]">EDITORIAL PREFERENCES</h3>
-          
-          <div className="space-y-12">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <h4 className="text-base font-bold text-white leading-none">Default Review Grid Layout</h4>
-                <p className="text-xs text-gamex-neutral mt-2">Choose how content is displayed in the Editorial tab.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-6 max-w-2xl">
-                <PreferenceOption 
-                  label="Poster" 
-                  icon={<Layout size={32} />} 
-                  active={layout === 'poster'} 
-                  onClick={() => setLayout('poster')} 
-                />
-                <PreferenceOption 
-                  label="Landscape" 
-                  icon={<FileText size={32} />} 
-                  active={layout === 'landscape'} 
-                  onClick={() => setLayout('landscape')} 
-                />
-              </div>
-            </div>
-
-            <div className="space-y-6 pt-12 border-t border-white/5">
-              <h4 className="text-base font-bold text-white leading-none">Content Density</h4>
-              <div className="flex gap-1 bg-[#111] p-1.5 rounded-sm border border-white/5 w-fit">
-                {['Compact', 'Comfortable'].map(d => (
-                  <button 
-                    key={d}
-                    onClick={() => setDensity(d.toLowerCase())}
-                    className={`px-10 py-3 text-[11px] font-bold uppercase tracking-widest rounded-sm transition-all ${density === d.toLowerCase() ? 'bg-white text-black' : 'text-gamex-neutral hover:text-white'}`}
-                  >
-                    {d}
-                  </button>
-                ))}
+                <button 
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="px-10 py-4 bg-brand-red hover:bg-brand-red-hover text-white text-[11px] font-bold uppercase tracking-widest rounded-sm transition-all active:scale-95 shadow-lg shadow-brand-red/20 disabled:opacity-50"
+                >
+                  {saving ? 'SAVING...' : 'SAVE PROFILE'}
+                </button>
               </div>
             </div>
           </div>

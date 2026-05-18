@@ -48,6 +48,12 @@ export const auth = {
 
   me: () => request<{ admin: AdminUser }>('/auth/me'),
 
+  updateProfile: (data: Partial<AdminUser> & { password?: string }) =>
+    request<{ admin: AdminUser }>('/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
   logout: () => localStorage.removeItem('gamex_admin_token'),
 
   saveToken: (token: string) => localStorage.setItem('gamex_admin_token', token),

@@ -503,10 +503,10 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
 
               <div className="flex items-center justify-between pt-10 border-t border-white/5">
                 <div className="flex items-center gap-5">
-                  <img src={review.author?.avatar || "https://i.pravatar.cc/100?u=sarah"} className="w-14 h-14 rounded-sm object-cover grayscale" alt="Reviewer" />
+                  <img src={review.authorAvatar || "https://i.pravatar.cc/100?u=sarah"} className="w-14 h-14 rounded-sm object-cover grayscale" alt="Reviewer" />
                   <div>
-                    <div className="text-sm font-bold text-white uppercase tracking-widest leading-none">Reviewed by {review.author?.name || "Sarah Jenkins"}</div>
-                    <div className="text-[10px] text-gamex-neutral uppercase font-medium mt-2">{review.author?.role || "Senior RPG Editor"}</div>
+                    <div className="text-sm font-bold text-white uppercase tracking-widest leading-none">Reviewed by {review.authorName || "Sarah Jenkins"}</div>
+                    <div className="text-[10px] text-gamex-neutral uppercase font-medium mt-2">{review.authorRole || "Senior RPG Editor"}</div>
                   </div>
                 </div>
                 <div className="text-8xl md:text-[120px] font-display text-brand-red leading-none opacity-90">{game.rating / 10}</div>

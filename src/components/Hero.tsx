@@ -30,29 +30,42 @@ export default function Hero({ game, review, onReadLongForm }: HeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-4 max-w-2xl"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-12 w-full"
         >
-          <div className="flex items-center gap-2">
-            <span className="px-1.5 py-0.5 bg-brand-red text-white text-[10px] font-bold uppercase tracking-wider rounded-[2px]">Latest Review</span>
+          <div className="space-y-4 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-1.5 py-0.5 bg-brand-red text-white text-[10px] font-bold uppercase tracking-wider rounded-[2px]">Latest Review</span>
+            </div>
+
+            <h1 className="text-5xl md:text-[72px] leading-[1.1] font-display uppercase tracking-[0.04em]">
+              {game.title}
+            </h1>
+
+            <p className="text-sm md:text-base text-white max-w-md leading-[1.5] font-sans">
+              {heroText}
+            </p>
+
+            <div className="flex items-center gap-3 pt-6">
+              <button
+                onClick={() => onReadLongForm(game.id)}
+                className="flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-[4px] font-bold text-sm hover:bg-white/80 transition-all"
+              >
+                <Play size={20} fill="currentColor" />
+                Read Review
+              </button>
+            </div>
           </div>
 
-          <h1 className="text-5xl md:text-[72px] leading-[1.1] font-display uppercase tracking-[0.04em]">
-            {game.title}
-          </h1>
-
-          <p className="text-sm md:text-base text-white max-w-md leading-[1.5] font-sans">
-            {heroText}
-          </p>
-
-          <div className="flex items-center gap-3 pt-6">
-            <button
-              onClick={() => onReadLongForm(game.id)}
-              className="flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-[4px] font-bold text-sm hover:bg-white/80 transition-all"
-            >
-              <Play size={20} fill="currentColor" />
-              Read Review
-            </button>
-          </div>
+          {/* Score Card */}
+          {game.rating !== undefined && game.rating !== null && (
+            <div className="bg-black/60 backdrop-blur-xl border border-white/10 p-6 rounded-sm w-44 text-center shrink-0">
+              <div className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] mb-2">GAMEX SCORE</div>
+              <div className="text-8xl font-display text-brand-red leading-none mb-1">{game.rating / 10}</div>
+              <div className="text-[11px] font-bold text-gamex-text-secondary uppercase tracking-widest">
+                {game.rating >= 95 ? 'Masterpiece' : game.rating >= 90 ? 'Amazing' : game.rating >= 80 ? 'Great' : 'Good'}
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
