@@ -20,7 +20,10 @@ export interface Review {
   screenshots: string[];
   publishedAt: string;
   readTime: string;
-  author: {
+  authorName?: string;
+  authorRole?: string;
+  authorAvatar?: string;
+  author?: {
     name: string;
     role: string;
     avatar: string;
