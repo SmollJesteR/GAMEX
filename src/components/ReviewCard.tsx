@@ -61,9 +61,11 @@ export default function ReviewCard({ review, game, onClick }: ReviewCardProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <div className="px-1.5 py-0.5 bg-brand-red text-white text-[9px] font-bold uppercase rounded-[2px]">
-                    {(game.rating / 10).toFixed(0)}/10
+                    {(game.rating / 10)}/10
                   </div>
-                  <span className="text-[10px] text-white/60 font-medium uppercase tracking-widest">{game.genre}</span>
+                  <span className="text-[10px] text-white/60 font-medium uppercase tracking-widest">
+                    {game.genre?.split(', ').filter(g => g && g !== 'Action RPG').join(', ')}
+                  </span>
                 </div>
 
                 <h4 className="text-base md:text-xl font-display text-white leading-tight uppercase tracking-tight">

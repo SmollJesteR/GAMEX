@@ -57,12 +57,20 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
     'The Verdict'
   ];
 
-  const platforms = [
-    { id: 'ps5', name: 'PS5', icon: <Gamepad2 size={12} /> },
-    { id: 'ps4', name: 'PS4', icon: <Gamepad2 size={12} /> },
-    { id: 'pc', name: 'PC', icon: <Monitor size={12} /> },
-    { id: 'xbox', name: 'Xbox Series X|S', icon: <Gamepad2 size={12} /> },
-  ];
+  const platforms = game.platforms?.length 
+    ? game.platforms.map(p => ({
+        id: p.toLowerCase(),
+        name: p,
+        icon: p.toLowerCase().includes('ps') || p.toLowerCase().includes('playstation') ? <Gamepad2 size={12} /> : 
+              p.toLowerCase().includes('pc') || p.toLowerCase().includes('windows') ? <Monitor size={12} /> : 
+              <Gamepad2 size={12} />
+      }))
+    : [
+        { id: 'ps5', name: 'PS5', icon: <Gamepad2 size={12} /> },
+        { id: 'ps4', name: 'PS4', icon: <Gamepad2 size={12} /> },
+        { id: 'pc', name: 'PC', icon: <Monitor size={12} /> },
+        { id: 'xbox', name: 'Xbox Series X|S', icon: <Gamepad2 size={12} /> },
+      ];
 
   const highs = review.highs || [
     "Unparalleled open-world design that rewards genuine exploration.",
@@ -135,12 +143,12 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
           >
             <div className="space-y-6 max-w-3xl">
               <div className="flex flex-wrap gap-2">
-                {game.genre.split(', ').map(tag => (
+                {game.genre?.split(', ').filter(g => g && g !== 'Action RPG').map(tag => (
                   <span key={tag} className="px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-[2px] text-[9px] font-bold uppercase tracking-widest text-white border border-white/10">
                     {tag}
                   </span>
                 ))}
-                {(game as any).subGenres?.map((tag: string) => (
+                {(game as any).subGenres?.filter(Boolean).map((tag: string) => (
                   <span key={tag} className="px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-[2px] text-[9px] font-bold uppercase tracking-widest text-white border border-white/10">
                     {tag}
                   </span>
@@ -171,7 +179,9 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
             <div className="bg-black/60 backdrop-blur-xl border border-white/10 p-6 rounded-sm w-44 text-center shrink-0">
               <div className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] mb-2">GAMEX SCORE</div>
               <div className="text-8xl font-display text-brand-red leading-none mb-1">{game.rating / 10}</div>
-              <div className="text-[11px] font-bold text-gamex-text-secondary uppercase tracking-widest">Masterpiece</div>
+              <div className="text-[11px] font-bold text-gamex-text-secondary uppercase tracking-widest">
+                {game.rating >= 95 ? 'Masterpiece' : game.rating >= 90 ? 'Amazing' : game.rating >= 80 ? 'Great' : 'Good'}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -248,7 +258,7 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
                 </div>
               </div>
 
-              <div className="relative aspect-[21/9] overflow-hidden rounded-sm border border-gamex-border group">
+              <div className="relative aspect-[21/9] overflow-hidden rounded-sm group">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={screenshotIndex}

@@ -2,26 +2,27 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
-import regeneratedRPGImage from '../assets/images/regenerated_image_1778851080258.png';
 
-export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: string) => void, key?: string }) {
+import type { Review, Game } from '../types';
+
+export default function Genres({ onGenreSelect, onGameSelect, reviewItems = [] }: { onGenreSelect?: (genre: string) => void, onGameSelect?: (gameId: string) => void, reviewItems?: Array<{review: Review; game: Game}>, key?: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [recommendationIndex, setRecommendationIndex] = useState(0);
 
   const categories = [
-    { name: "Action", image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Action-Adventure", image: "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Role-Playing (RPG)", image: regeneratedRPGImage },
-    { name: "Simulation", image: "https://images.unsplash.com/photo-1518091044133-aa24e12e1ec7?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Strategy", image: "https://images.unsplash.com/photo-1560416313-414b33c856a9?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Shooter", image: "https://images.unsplash.com/photo-1629752187622-c2c974534946?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Fighting", image: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Sports", image: "https://images.unsplash.com/photo-1552072805-2a9039d00e57?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Puzzle", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Mobile", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" }
+    { name: "Action", image: "https://media.rawg.io/media/games/26d/26d4437715bee60138dab4a7c8c59c92.jpg" },
+    { name: "Action-Adventure", image: "https://media.rawg.io/media/games/baf/baf9905270314e07e6850cffdb51df41.jpg" },
+    { name: "Role-Playing (RPG)", image: "https://media.rawg.io/media/games/da1/da1b267764d77221f07a4386b6548e5a.jpg" },
+    { name: "Simulation", image: "https://media.rawg.io/media/games/08b/08b2eee52a9876a48b955e5149affe5b.jpg" },
+    { name: "Strategy", image: "https://media.rawg.io/media/games/054/0549f1a0a5e782d4e81cdf8d022073fa.jpg" },
+    { name: "Shooter", image: "https://media.rawg.io/media/games/737/737ea5662211d2e0bbd6f5989189e4f1.jpg" },
+    { name: "Fighting", image: "https://media.rawg.io/media/screenshots/ad1/ad15e71b0a3d431ce0a59bcd783efa88.jpg" },
+    { name: "Sports", image: "https://media.rawg.io/media/screenshots/f5a/f5abab52c4d606551cd5ec3ab709e501.jpg" },
+    { name: "Puzzle", image: "https://media.rawg.io/media/games/948/948fe7f00b6cba8472f5ecd07a455077.jpg" },
+    { name: "Mobile", image: "https://media.rawg.io/media/screenshots/5a7/5a72aed79451d8fbd6a7b82f784002bd.jpg" }
   ];
 
-  const recommendations = [
+  const defaultRecommendations = [
     {
       title: "SUBNAUTICA 2",
       score: "9.5/10",
@@ -29,8 +30,8 @@ export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: stri
       review: "Subnautica 2 is like Subnautica 1 but if Subnautica 1 was a cheese pizza and you finally added all the toppings. Both are objectively good but Subnautica 2 also gave you double bacon and cheese for free. TL;DR Played for 90 hours (Had super fun)",
       userName: "Anthomnia",
       userAvatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop",
-      playTime: "90.0 hrs",
-      helpfulCount: "211"
+      helpfulCount: "211",
+      gameId: ""
     },
     {
       title: "ELDEN RING",
@@ -39,8 +40,8 @@ export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: stri
       review: "Rise, Tarnished, and be led by grace to brandish the power of the Elden Ring and become an Elden Lord in the Lands Between. A masterpiece of world design and discovery. One of the best games ever made.",
       userName: "GamerPro99",
       userAvatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop",
-      playTime: "150.5 hrs",
-      helpfulCount: "1.2k"
+      helpfulCount: "1.2k",
+      gameId: ""
     },
     {
       title: "DOOM ETERNAL",
@@ -49,10 +50,24 @@ export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: stri
       review: "Hell's armies have invaded Earth. Become the Slayer in an epic single-player campaign to conquer demons across dimensions and stop the final destruction of humanity. The only thing they fear is you.",
       userName: "SlayerFan",
       userAvatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=100&auto=format&fit=crop",
-      playTime: "45.2 hrs",
-      helpfulCount: "450"
+      helpfulCount: "450",
+      gameId: ""
     }
   ];
+
+  // Map dynamic reviews to the recommendation format. We show up to 5 recommendations.
+  const dynamicRecommendations = reviewItems.filter(item => item.review && item.game).slice(0, 5).map(item => ({
+    title: item.game.title,
+    score: `${item.game.rating / 10}/10`,
+    image: item.game.heroImage || item.game.coverImage,
+    review: item.review.content?.split('\\n').filter(p => p.trim())[0] || item.review.subtitle || "No review content yet.",
+    userName: item.review.authorName || "Editorial Staff",
+    userAvatar: item.review.authorAvatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop",
+    helpfulCount: Math.floor(Math.random() * 500) + 50,
+    gameId: item.game.id
+  }));
+
+  const recommendations = dynamicRecommendations.length > 0 ? dynamicRecommendations : defaultRecommendations;
 
   const itemsPerView = 4;
   const categoriesCount = categories.length;
@@ -280,7 +295,14 @@ export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: stri
                   "{currentRec.review}"
                 </motion.p>
                 <div className="text-center">
-                  <button className="text-[10px] text-brand-red hover:text-white underline uppercase tracking-widest transition-colors font-bold">
+                  <button 
+                    onClick={() => {
+                      if (currentRec.gameId && onGameSelect) {
+                        onGameSelect(currentRec.gameId);
+                      }
+                    }}
+                    className="text-[10px] text-brand-red hover:text-white underline uppercase tracking-widest transition-colors font-bold"
+                  >
                     Read Entire Review
                   </button>
                 </div>
@@ -300,7 +322,6 @@ export default function Genres({ onGenreSelect }: { onGenreSelect?: (genre: stri
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-sm font-bold text-white truncate uppercase tracking-wider">{currentRec.userName}</h4>
-                    <p className="text-[10px] text-white/40 uppercase tracking-widest truncate">Played {currentRec.playTime} at review time</p>
                     <p className="text-[9px] text-brand-red/60 mt-0.5 truncate">{currentRec.helpfulCount} people found this review helpful</p>
                   </div>
                 </div>

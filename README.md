@@ -9,10 +9,10 @@
 
 ## ✨ Features
 
-- **Dynamic Frontend UI:** Premium visual design using modern layout principles, smooth micro-animations (Framer Motion), and responsive typography.
-- **Game Browsing:** Explore games categorized by genres, view rich cover and hero images.
-- **Editorial Reviews:** Read in-depth game reviews with high/low points, verdicts, and screenshots.
-- **Admin Dashboard:** Secure login for editors to manage games and publish reviews.
+- **Dynamic Frontend UI:** Premium visual design using modern layout principles, smooth micro-animations (Framer Motion), responsive typography, and borderless cinematic media containers.
+- **Game Browsing:** Explore games categorized by genres, view rich cover and hero images, and dynamically generated "Community Recommends" highlights.
+- **Editorial Reviews:** Read in-depth game reviews with high/low points, verdicts, precise decimal scoring, and screenshots.
+- **Admin Dashboard CMS:** Secure login for editors to manage games, publish reviews, assign genres/sub-genres, and update dynamic profile settings (name, role, avatar).
 - **Media Management:** Integrated Cloudinary upload system for game covers, hero images, and review screenshots.
 - **External Integrations:** Fetches and synchronizes game data using the RAWG Game Database API.
 
@@ -31,71 +31,30 @@
 - **Authentication:** JWT, bcryptjs
 - **Media Storage:** Cloudinary
 
-## 🚀 Getting Started
+## 📅 Development Log
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v18+ recommended)
-- A [PostgreSQL](https://www.postgresql.org/) database
-- A [Cloudinary](https://cloudinary.com/) account for media uploads
-- A [RAWG API](https://rawg.io/apidocs) key for game data fetching
+- **Friday, May 15, 2026**
+  - Transitioned the platform from static mock data to a dynamic, functional Content Management System.
+  - Established backend persistence using an Express server and Prisma ORM.
+  - Integrated API endpoints for managing game reviews and media assets.
 
-### Installation & Setup
+- **Saturday, May 16, 2026**
+  - Configured environment variables to handle secure API connections (PostgreSQL, Cloudinary, RAWG).
+  - Refined the CMS Editorial workflow for creating and editing comprehensive reviews.
+  - Developed the structured Review Detail page, syncing UI components to accurately display dynamic content across modular sections.
 
-1. **Clone the repository and navigate to the project directory:**
-   ```bash
-   git clone <your-repo-url>
-   cd GAMEX
-   ```
+- **Sunday, May 17, 2026**
+  - Increased visual spacing between homepage sections for improved aesthetics.
+  - Added the "Fighting" genre and implemented a new "Sub-Genres" system serving as interactive tags.
+  - Fixed syntax issues and UI inconsistencies within layout components.
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+- **Monday, May 18, 2026**
+  - Finalized the Admin Dashboard profile settings, allowing dynamic author metadata (name, role, avatar) to reflect globally.
+  - Resolved UI interaction issues to ensure smooth horizontal scrolling across the Review Row.
 
-3. **Configure Environment Variables:**
-   Copy the example environment file and fill in your actual credentials.
-   ```bash
-   cp .env.example .env
-   ```
-   Open `.env` and set your `DATABASE_URL`, `JWT_SECRET`, `RAWG_API_KEY`, and `CLOUDINARY_*` keys.
-
-4. **Initialize the Database:**
-   Push the Prisma schema to your database.
-   ```bash
-   npx prisma db push
-   ```
-
-5. **Seed the Database (Optional but recommended):**
-   This will populate the database with initial game genres, sample reviews, and the default admin user.
-   ```bash
-   npm run seed
-   ```
-
-6. **Start the Development Servers:**
-   You will need two terminal windows to run both the frontend and backend simultaneously.
-
-   **Terminal 1 (Backend API):**
-   ```bash
-   npm run server:dev
-   ```
-
-   **Terminal 2 (Frontend Vite Server):**
-   ```bash
-   npm run dev
-   ```
-
-7. **Access the Application:**
-   - **Frontend:** http://localhost:3000
-   - **Backend API:** http://localhost:4000
-   - **Admin Login:** Navigate to the "Admin" section in the footer or visit the login route to access the CMS (use credentials from `.env` seed).
-
-## 📂 Project Structure
-
-- `/src`: React frontend source code (components, lib, pages).
-- `/server`: Node.js/Express backend API (routes, controllers, config).
-- `/prisma`: Database schema, migrations, and seed scripts.
-- `/uploads`: Temporary local storage for files before Cloudinary upload.
-
-## 📄 License
-
-This project is licensed under the MIT License.
+- **Tuesday, May 19, 2026**
+  - Enhanced precise decimal score rendering natively on the Review Card hover states.
+  - Integrated dynamic platform icon rendering based on live database arrays instead of hardcoded fallbacks.
+  - Addressed a CMS taxonomy bug to filter out hidden default sub-genre tags ("Action RPG") from improperly persisting.
+  - Polished the Review Detail Visual Spectacle section by removing aesthetic constraints around the cinematic media container.
+  - Revamped the "Community Recommends" section to pull directly from the database, rendering dynamic hero images, exact scores, and parsed first-paragraph review snippets.

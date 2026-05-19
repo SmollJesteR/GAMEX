@@ -92,7 +92,7 @@ export default function App() {
           ) : currentView === 'about' ? (
             <About key="about" />
           ) : currentView === 'genres' ? (
-            <Genres key="genres" onGenreSelect={handleGenreSelect} />
+            <Genres key="genres" onGenreSelect={handleGenreSelect} onGameSelect={handleGameSelect} reviewItems={gridItems} />
           ) : currentView === 'genre-detail' ? (
             <GenreDetail 
               key="genre-detail" 

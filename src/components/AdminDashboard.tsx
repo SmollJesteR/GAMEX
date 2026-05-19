@@ -41,6 +41,31 @@ import {
 
 type View = 'dashboard' | 'content' | 'editorial' | 'analytics' | 'settings';
 
+const allGenres = [
+  "Action",
+  "Action-Adventure",
+  "Role-Playing (RPG)",
+  "Simulation",
+  "Strategy",
+  "Shooter",
+  "Fighting",
+  "Sports",
+  "Puzzle",
+  "Mobile"
+];
+
+const allSubGenres = [
+  "Hack & Slash", "Beat 'em Up", "Stealth", "Survival", "Battle Royale", "Rhythm", "Open World", "Metroidvania", "Souls-like", "Narrative Adventure", "Sandbox",
+  "JRPG", "WRPG", "MMORPG", "Tactical RPG", "Roguelike", "Roguelite", "Dungeon Crawler", "Action RPG",
+  "Life Sim", "City Builder", "Farming Sim", "Flight Sim", "Business & Tycoon", "Vehicle Sim", "Social Sim",
+  "Real-Time Strategy (RTS)", "Turn-Based Strategy (TBS)", "Tower Defense", "4X", "Grand Strategy", "Auto Chess",
+  "First-Person Shooter (FPS)", "Third-Person Shooter (TPS)", "Top-Down Shooter", "Bullet Hell", "Tactical Shooter",
+  "2D Fighter", "3D Fighter", "Arena Fighter", "Platform Fighter",
+  "Football & Soccer", "Racing", "Basketball", "Baseball", "Combat Sports", "Extreme Sports", "Sports Management",
+  "Logic", "Physics-Based", "Match-3", "Escape Room", "Hidden Object", "Word & Trivia",
+  "Hyper-Casual", "Idle & Clicker", "Gacha", "Card & Collectible"
+];
+
 export default function AdminDashboard({ onGoHome }: { key?: string; onGoHome?: () => void }) {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
@@ -428,7 +453,7 @@ function ContentManagerView({ onAction, onEditReview, onNewReview }: { onAction:
 }
 
 function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void, editingReviewId?: string | null, admin?: import('../lib/api').AdminUser | null, key?: string }) {
-  const [selectedGenres, setSelectedGenres] = useState(['Role-Playing (RPG)', 'Action RPG']);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['PC', 'PS5', 'Xbox Series X']);
   const [selectedSubGenres, setSelectedSubGenres] = useState<string[]>([]);
   const [gameQuery, setGameQuery] = React.useState('');
@@ -533,7 +558,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
           setHeroImage(game.heroImage || '');
           setGridImage(game.gridImage || '');
           setSelectedPlatforms(game.platforms || ['PC', 'PS5', 'Xbox Series X']);
-          setSelectedGenres(game.genre ? game.genre.split(', ') : ['Role-Playing (RPG)']);
+          setSelectedGenres(game.genre ? game.genre.split(', ').filter(g => allGenres.includes(g)) : []);
           setSelectedSubGenres(game.subGenres || []);
           setExistingGameDbId(game.id);
         }
@@ -567,7 +592,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
     setReviewTitle(game.title + ' Review');
     setSlug(game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
     setSelectedPlatforms(game.platforms && game.platforms.length > 0 ? game.platforms : ['PC', 'PS5', 'Xbox Series X']);
-    setSelectedGenres(game.genres && game.genres.length > 0 ? game.genres : ['Role-Playing (RPG)', 'Action RPG']);
+    setSelectedGenres(game.genres && game.genres.length > 0 ? game.genres.filter(g => allGenres.includes(g)) : []);
     setHeroImage(game.heroImage || '');
   };
 
@@ -680,30 +705,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
     }
   };
 
-  const allGenres = [
-    "Action",
-    "Action-Adventure",
-    "Role-Playing (RPG)",
-    "Simulation",
-    "Strategy",
-    "Shooter",
-    "Fighting",
-    "Sports",
-    "Puzzle",
-    "Mobile"
-  ];
 
-  const allSubGenres = [
-    "Hack & Slash", "Beat 'em Up", "Stealth", "Survival", "Battle Royale", "Rhythm", "Open World", "Metroidvania", "Souls-like", "Narrative Adventure", "Sandbox",
-    "JRPG", "WRPG", "MMORPG", "Tactical RPG", "Roguelike", "Roguelite", "Dungeon Crawler", "Action RPG",
-    "Life Sim", "City Builder", "Farming Sim", "Flight Sim", "Business & Tycoon", "Vehicle Sim", "Social Sim",
-    "Real-Time Strategy (RTS)", "Turn-Based Strategy (TBS)", "Tower Defense", "4X", "Grand Strategy", "Auto Chess",
-    "First-Person Shooter (FPS)", "Third-Person Shooter (TPS)", "Top-Down Shooter", "Bullet Hell", "Tactical Shooter",
-    "2D Fighter", "3D Fighter", "Arena Fighter", "Platform Fighter",
-    "Football & Soccer", "Racing", "Basketball", "Baseball", "Combat Sports", "Extreme Sports", "Sports Management",
-    "Logic", "Physics-Based", "Match-3", "Escape Room", "Hidden Object", "Word & Trivia",
-    "Hyper-Casual", "Idle & Clicker", "Gacha", "Card & Collectible"
-  ];
 
   const toggleGenre = (genre: string) => {
     setSelectedGenres(prev => 
