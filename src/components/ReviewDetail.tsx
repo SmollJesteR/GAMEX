@@ -266,7 +266,7 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
                             autoPlay
                             muted
                             loop
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <iframe
@@ -285,7 +285,7 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
                     ) : (
                       <img
                         src={screenshots[screenshotIndex]}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         alt={`Screenshot ${screenshotIndex + 1}`}
                         referrerPolicy="no-referrer"
                       />
