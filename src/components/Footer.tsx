@@ -28,9 +28,9 @@ export default function Footer({ onNavigate }: FooterProps) {
           <div className="space-y-8">
             <h6 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">Navigation</h6>
             <ul className="space-y-4 text-xs font-bold uppercase tracking-wider">
-              <li><button onClick={() => onNavigate('home')} className="hover:text-brand-red transition-colors">Reviews</button></li>
-              <li><button onClick={() => onNavigate('genres')} className="hover:text-brand-red transition-colors">Genres</button></li>
-              <li><button onClick={() => onNavigate('about')} className="hover:text-brand-red transition-colors">About Us</button></li>
+              <li><button onClick={() => onNavigate('home')} className="hover:text-brand-red transition-colors">REVIEWS</button></li>
+              <li><button onClick={() => onNavigate('genres')} className="hover:text-brand-red transition-colors">GENRES</button></li>
+              <li><button onClick={() => onNavigate('about')} className="hover:text-brand-red transition-colors">ABOUT US</button></li>
             </ul>
           </div>
 

@@ -124,12 +124,20 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
       </motion.header>
 
       {/* Hero Section */}
-      <div className="relative h-[85vh] w-full overflow-hidden">
+      <div className="relative h-[85vh] w-full overflow-hidden bg-gamex-surface">
         <img
           src={game.heroImage}
           alt={game.title}
           className="absolute inset-0 h-full w-full object-cover"
           referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (target.src.includes('.webp')) {
+              console.error('Hero WebP failed:', target.src);
+            }
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gamex-black via-gamex-black/20 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-gamex-black/60 via-transparent to-transparent" />
@@ -298,6 +306,13 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
                         className="w-full h-full object-contain"
                         alt={`Screenshot ${screenshotIndex + 1}`}
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src.includes('.webp')) {
+                            // If it's a webp that failed, we could try to reload or show a placeholder
+                            console.error('WebP image failed to load:', target.src);
+                          }
+                        }}
                       />
                     )}
                   </motion.div>

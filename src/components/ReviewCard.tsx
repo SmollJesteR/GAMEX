@@ -35,12 +35,21 @@ export default function ReviewCard({ review, game, onClick }: ReviewCardProps) {
         className="absolute inset-0 bg-gamex-surface rounded-[4px] shadow-2xl overflow-hidden"
       >
         {/* Card Artwork */}
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full bg-gamex-surface-light animate-pulse-slow">
           <img
             src={game.gridImage || game.coverImage}
             alt={game.title}
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              // Prevent infinite loop if fallback also fails
+              if (target.src !== game.coverImage && game.coverImage) {
+                target.src = game.coverImage;
+              }
+            }}
           />
 
           <div className="absolute inset-0 bg-gradient-to-t from-gamex-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

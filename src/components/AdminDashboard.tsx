@@ -459,6 +459,8 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
   const [gameQuery, setGameQuery] = React.useState('');
   const [uploadedScreenshots, setUploadedScreenshots] = React.useState<string[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
+  const [isUploadingHero, setIsUploadingHero] = React.useState(false);
+  const [isUploadingGrid, setIsUploadingGrid] = React.useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -968,24 +970,39 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
           <div className="space-y-6 pt-12 border-t border-white/5">
             <h3 className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em]">Media Assets</h3>
             <div className="grid grid-cols-3 gap-6">
-               {/* Hero Background (16:9) */}
                <div className="col-span-2 space-y-3">
                   <span className="text-[9px] font-bold text-gamex-neutral uppercase tracking-widest">Hero Background (16:9)</span>
-                  <label className="aspect-video relative overflow-hidden bg-[#111] border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center p-8 text-center group hover:border-brand-red/50 transition-colors cursor-pointer">
-                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  <label className={`aspect-video relative overflow-hidden bg-[#111] border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center p-8 text-center group hover:border-brand-red/50 transition-colors cursor-pointer ${isUploadingHero ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <input type="file" accept="image/webp,image/png,image/jpeg,image/*" className="hidden" disabled={isUploadingHero} onChange={async (e) => {
                       if (!e.target.files || e.target.files.length === 0) return;
                       const file = e.target.files[0];
+                      setIsUploadingHero(true);
                       try {
                         const { media } = await import('../lib/api');
                         const res = await media.upload(file);
                         setHeroImage(res.url);
                       } catch (error) {
                         alert('Upload failed');
+                      } finally {
+                        setIsUploadingHero(false);
+                        e.target.value = '';
                       }
                     }} />
-                    {heroImage ? (
+                    {isUploadingHero ? (
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin mb-2" />
+                        <span className="text-[8px] uppercase tracking-widest text-gamex-neutral">Uploading...</span>
+                      </div>
+                    ) : heroImage ? (
                       <>
-                        <img src={heroImage} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <img 
+                          src={heroImage} 
+                          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src.includes('.webp')) console.error('Hero preview WebP failed');
+                          }}
+                        />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <span className="text-[9px] font-bold text-white uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-sm">Change Image</span>
                         </div>
@@ -1003,21 +1020,37 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
                {/* Grid Image (2:3) */}
                <div className="col-span-1 space-y-3">
                   <span className="text-[9px] font-bold text-gamex-neutral uppercase tracking-widest">Grid Cover (2:3)</span>
-                  <label className="aspect-[2/3] relative overflow-hidden bg-[#111] border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center p-6 text-center group hover:border-brand-red/50 transition-colors cursor-pointer">
-                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  <label className={`aspect-[2/3] relative overflow-hidden bg-[#111] border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center p-6 text-center group hover:border-brand-red/50 transition-colors cursor-pointer ${isUploadingGrid ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <input type="file" accept="image/webp,image/png,image/jpeg,image/*" className="hidden" disabled={isUploadingGrid} onChange={async (e) => {
                       if (!e.target.files || e.target.files.length === 0) return;
                       const file = e.target.files[0];
+                      setIsUploadingGrid(true);
                       try {
                         const { media } = await import('../lib/api');
                         const res = await media.upload(file);
                         setGridImage(res.url);
                       } catch (error) {
                         alert('Upload failed');
+                      } finally {
+                        setIsUploadingGrid(false);
+                        e.target.value = '';
                       }
                     }} />
-                    {gridImage ? (
+                    {isUploadingGrid ? (
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin mb-2" />
+                        <span className="text-[8px] uppercase tracking-widest text-gamex-neutral">Uploading...</span>
+                      </div>
+                    ) : gridImage ? (
                       <>
-                        <img src={gridImage} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <img 
+                          src={gridImage} 
+                          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src.includes('.webp')) console.error('Grid preview WebP failed');
+                          }}
+                        />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <span className="text-[9px] font-bold text-white uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-sm">Change Image</span>
                         </div>
@@ -1042,7 +1075,14 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
                      {url.match(/\.(mp4|webm|ogg)$/) ? (
                        <video src={url} className="w-full h-full object-cover" muted loop />
                      ) : (
-                       <img src={url} className="w-full h-full object-cover" />
+                       <img 
+                        src={url} 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src.includes('.webp')) console.error('Screenshot preview WebP failed');
+                        }}
+                       />
                      )}
                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <button 
@@ -1055,7 +1095,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
                    </div>
                  ))}
                  <label className={`aspect-video bg-[#111] border border-dashed border-white/10 rounded-sm flex items-center justify-center cursor-pointer hover:border-brand-red/50 transition-colors ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                   <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
+                   <input type="file" accept="image/webp,image/png,image/jpeg,image/*,video/*" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
                    {isUploading ? (
                       <div className="flex flex-col items-center">
                         <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin mb-2" />
@@ -1421,7 +1461,7 @@ function SettingsView(_props: { key?: string }) {
           <div className="flex gap-12">
             <div className="space-y-4 flex flex-col items-start">
                <label className="w-28 h-28 bg-[#222] border border-white/10 rounded-sm overflow-hidden grayscale cursor-pointer group relative flex flex-col items-center justify-center">
-                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                  <input type="file" accept="image/webp,image/png,image/jpeg,image/*" className="hidden" onChange={handleAvatarUpload} />
                   {avatarUrl ? (
                     <img src={avatarUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" alt="Avatar" />
                   ) : (
