@@ -42,6 +42,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     gameplayDepth, gameplayBalance, gameplayInnovation,
     worldScale, worldAtmosphere, worldDetail,
     perfLowestFps, perfAverageFps, perfHighestFps,
+    trailerUrl,
   } = req.body;
 
   if (!gameId || !title) {
@@ -66,6 +67,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       authorAvatar: authorAvatar || '',
       highs: highs || [], lows: lows || [],
       verdict: verdict || '',
+      trailerUrl: trailerUrl || '',
       ...(gameplayDepth !== undefined && { gameplayDepth: Number(gameplayDepth) }),
       ...(gameplayBalance !== undefined && { gameplayBalance: Number(gameplayBalance) }),
       ...(gameplayInnovation !== undefined && { gameplayInnovation: Number(gameplayInnovation) }),
@@ -91,6 +93,7 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
     gameplayDepth, gameplayBalance, gameplayInnovation,
     worldScale, worldAtmosphere, worldDetail,
     perfLowestFps, perfAverageFps, perfHighestFps,
+    trailerUrl,
   } = req.body;
 
   const data: Record<string, unknown> = {};
@@ -106,6 +109,7 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
   if (highs !== undefined) data.highs = highs;
   if (lows !== undefined) data.lows = lows;
   if (verdict !== undefined) data.verdict = verdict;
+  if (trailerUrl !== undefined) data.trailerUrl = trailerUrl;
   if (gameplayDepth !== undefined) data.gameplayDepth = Number(gameplayDepth);
   if (gameplayBalance !== undefined) data.gameplayBalance = Number(gameplayBalance);
   if (gameplayInnovation !== undefined) data.gameplayInnovation = Number(gameplayInnovation);

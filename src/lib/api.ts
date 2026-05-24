@@ -152,6 +152,7 @@ export interface Review {
   highs: string[];
   lows: string[];
   verdict: string;
+  trailerUrl?: string;
   // Performance breakdown scores
   gameplayDepth?: number | null;
   gameplayBalance?: number | null;

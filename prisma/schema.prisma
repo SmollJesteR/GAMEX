@@ -54,6 +54,7 @@ model Review {
   highs       String[]
   lows        String[]
   verdict     String   @db.Text
+  trailerUrl  String   @default("")
 
   // Performance Breakdown — Gameplay & Mechanics (1-10 likert scale)
   gameplayDepth      Int?

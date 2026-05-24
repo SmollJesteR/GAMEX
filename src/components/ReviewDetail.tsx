@@ -17,7 +17,18 @@ interface ReviewDetailProps {
 export default function ReviewDetail({ review, game, onBack, similarGames, onGameSelect, onAdminAccess, onNavigate }: ReviewDetailProps) {
   const [activeChapter, setActiveChapter] = React.useState('Story & Summary');
   const [screenshotIndex, setScreenshotIndex] = React.useState(0);
+  const [showTrailer, setShowTrailer] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const getYouTubeEmbedUrl = (url: string): string | null => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&rel=0`;
+    }
+    return null;
+  };
 
   // Navbar scroll — hide on scroll down, show on scroll up
   const { scrollY } = useScroll({ container: scrollRef });
@@ -57,20 +68,20 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
     'The Verdict'
   ];
 
-  const platforms = game.platforms?.length 
+  const platforms = game.platforms?.length
     ? game.platforms.map(p => ({
-        id: p.toLowerCase(),
-        name: p,
-        icon: p.toLowerCase().includes('ps') || p.toLowerCase().includes('playstation') ? <Gamepad2 size={12} /> : 
-              p.toLowerCase().includes('pc') || p.toLowerCase().includes('windows') ? <Monitor size={12} /> : 
-              <Gamepad2 size={12} />
-      }))
+      id: p.toLowerCase(),
+      name: p,
+      icon: p.toLowerCase().includes('ps') || p.toLowerCase().includes('playstation') ? <Gamepad2 size={12} /> :
+        p.toLowerCase().includes('pc') || p.toLowerCase().includes('windows') ? <Monitor size={12} /> :
+          <Gamepad2 size={12} />
+    }))
     : [
-        { id: 'ps5', name: 'PS5', icon: <Gamepad2 size={12} /> },
-        { id: 'ps4', name: 'PS4', icon: <Gamepad2 size={12} /> },
-        { id: 'pc', name: 'PC', icon: <Monitor size={12} /> },
-        { id: 'xbox', name: 'Xbox Series X|S', icon: <Gamepad2 size={12} /> },
-      ];
+      { id: 'ps5', name: 'PS5', icon: <Gamepad2 size={12} /> },
+      { id: 'ps4', name: 'PS4', icon: <Gamepad2 size={12} /> },
+      { id: 'pc', name: 'PC', icon: <Monitor size={12} /> },
+      { id: 'xbox', name: 'Xbox Series X|S', icon: <Gamepad2 size={12} /> },
+    ];
 
   const highs = review.highs || [
     "Unparalleled open-world design that rewards genuine exploration.",
@@ -172,9 +183,18 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
               </p>
 
               <div className="flex items-center gap-4 pt-4">
-                <button className="flex items-center gap-2 bg-brand-red text-white px-8 py-3 rounded-sm font-bold text-sm hover:bg-brand-red-hover transition-all group">
+                <button
+                  onClick={() => {
+                    if (review.trailerUrl) {
+                      setShowTrailer(true);
+                    } else {
+                      alert('No trailer has been added for this game yet.');
+                    }
+                  }}
+                  className="flex items-center gap-2 bg-brand-red text-white px-8 py-3 rounded-sm font-bold text-sm hover:bg-brand-red-hover transition-all group"
+                >
                   <Play size={18} fill="currentColor" />
-                  Watch Video Review
+                  Watch Trailer
                 </button>
                 <button className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-sm font-bold text-sm hover:bg-white/20 transition-all">
                   <Plus size={18} />
@@ -490,7 +510,7 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
                 <div className="absolute top-0 left-0 w-1 h-full bg-[#46D369]" />
                 <div className="flex items-center gap-3 text-[#46D369]">
                   <Check size={18} className="stroke-[3]" />
-                  <h4 className="text-[24px] tracking-[0.2em] uppercase font-display">The Highs</h4>
+                  <h4 className="text-[32px] tracking-[0.2em] uppercase font-display">The Highs</h4>
                 </div>
                 <ul className="space-y-4">
                   {highs.map((high, i) => (
@@ -506,7 +526,7 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
                 <div className="absolute top-0 left-0 w-1 h-full bg-brand-red" />
                 <div className="flex items-center gap-3 text-brand-red">
                   <X size={18} className="stroke-[3]" />
-                  <h4 className="text-[24px] tracking-[0.2em] uppercase font-display">The Lows</h4>
+                  <h4 className="text-[32px] tracking-[0.2em] uppercase font-display">The Lows</h4>
                 </div>
                 <ul className="space-y-4">
                   {lows.map((low, i) => (
@@ -521,7 +541,7 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
 
             {/* Verdict Card */}
             <div className="!mt-16 bg-[#181818] border border-white/5 rounded-sm p-10 md:p-14 space-y-10 relative overflow-hidden">
-              <h3 className="text-[24px] font-bold uppercase tracking-[0.4em] text-gamex-neutral">The Verdict</h3>
+              <h3 className="text-[32px] font-bold uppercase tracking-[0.4em] text-gamex-neutral">The Verdict</h3>
               <p className="text-2xl md:text-3xl font-sans font-medium text-white leading-tight max-w-5xl">
                 {review.verdict || "Elden Ring is a stunning achievement. It manages to translate the grueling, satisfying formula of Dark Souls into an expansive, awe-inspiring open world. It is a game that demands your attention, punishes your mistakes, and rewards your curiosity like nothing else before it."}
               </p>
@@ -565,6 +585,49 @@ export default function ReviewDetail({ review, game, onBack, similarGames, onGam
       <div className="mt-20">
         <Footer onNavigate={onNavigate || (() => { })} />
       </div>
+      {/* YouTube Trailer Modal */}
+      <AnimatePresence>
+        {showTrailer && review.trailerUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 p-4 md:p-8 backdrop-blur-md"
+            onClick={() => setShowTrailer(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative w-full max-w-5xl aspect-video bg-[#0d0d0d] border border-white/10 rounded-sm shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowTrailer(false)}
+                className="absolute top-4 right-4 z-50 p-2 bg-black/60 hover:bg-brand-red text-white rounded-full transition-colors cursor-pointer"
+              >
+                <X size={24} />
+              </button>
+
+              {getYouTubeEmbedUrl(review.trailerUrl) ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(review.trailerUrl)!}
+                  className="w-full h-full border-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
+                  <p className="text-lg text-white font-bold">Invalid YouTube link format</p>
+                  <p className="text-sm text-gamex-neutral max-w-md">The trailer URL is not a valid YouTube link. Please update it in the CMS.</p>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

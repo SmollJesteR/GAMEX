@@ -500,6 +500,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
   const [consText, setConsText] = React.useState('');
   const [heroImage, setHeroImage] = React.useState('');
   const [gridImage, setGridImage] = React.useState('');
+  const [trailerUrl, setTrailerUrl] = React.useState('');
 
   // Performance Breakdown state
   const [gameplayDepth, setGameplayDepth] = React.useState(5);
@@ -535,6 +536,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
         setProsText((review.highs || []).join('\n'));
         setConsText((review.lows || []).join('\n'));
         setUploadedScreenshots(review.screenshots || []);
+        setTrailerUrl(review.trailerUrl || '');
         // Performance breakdown
         setGameplayDepth(review.gameplayDepth ?? 5);
         setGameplayBalance(review.gameplayBalance ?? 5);
@@ -683,6 +685,7 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
         authorName: admin?.name || 'GAMEX Editorial',
         authorRole: admin?.role || 'Staff Critic',
         authorAvatar: admin?.avatarUrl || '',
+        trailerUrl,
       };
 
       if (existingReviewDbId) {
@@ -938,6 +941,17 @@ function EditorialView({ onBack, editingReviewId, admin }: { onBack: () => void,
               onChange={(e) => setSummary(e.target.value)}
               placeholder="Brief summary of the story/premise..."
               className="w-full bg-[#111] border border-white/5 rounded-sm p-6 text-sm text-gamex-text-secondary focus:outline-none focus:border-brand-red/30 transition-colors"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-bold text-gamex-neutral uppercase tracking-[0.3em] block">YouTube Trailer Link</label>
+            <input 
+              type="text"
+              value={trailerUrl}
+              onChange={(e) => setTrailerUrl(e.target.value)}
+              placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/..."
+              className="w-full bg-[#111] border border-white/5 rounded-sm py-3 px-4 text-sm text-gamex-text-secondary focus:outline-none focus:border-brand-red/30 transition-colors"
             />
           </div>
 
